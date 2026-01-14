@@ -24,9 +24,24 @@ type Product = {
     id: number;
     name: string;
   };
+  company?: {
+    id: number;
+    name: string;
+    logoUrl?: string | null;
+  } | null;
   images: Array<{
     id: string;
     url: string;
+  }>;
+  colors: Array<{
+    id: string;
+    name: string;
+    hex: string;
+  }>;
+  sizes: Array<{
+    id: string;
+    size: string;
+    quantity: number;
   }>;
 };
 

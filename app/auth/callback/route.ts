@@ -17,23 +17,42 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error("Error exchanging code for session:", error);
-      
-      // Extract error message from different possible formats
-      const errorMsg = error.message || error.msg || error.error_description || "حدث خطأ أثناء تسجيل الدخول";
-      
-      // Provide user-friendly error messages
+
+      // اجمع كل الاحتمالات بدون كسر TypeScript
+      const anyErr = error as unknown as {
+        message?: string;
+        error_description?: string;
+        error?: string;
+        code?: string;
+        error_code?: string;
+        status?: number;
+      };
+
+      const errorMsg =
+        anyErr.message ||
+        anyErr.error_description ||
+        anyErr.error ||
+        "Authentication failed";
+
+      const errCode = anyErr.code || anyErr.error_code;
+
+      // رسالة مفهومة للمستخدم
       let userFriendlyMsg = errorMsg;
-      if (errorMsg.includes("provider is not enabled") || 
-          errorMsg.includes("Unsupported provider") ||
-          error.code === "validation_failed" ||
-          error.error_code === "validation_failed") {
-        userFriendlyMsg = "❌ Google provider غير مفعّل في Supabase Dashboard. يرجى تفعيله من: Authentication → Providers → Google";
+
+      if (
+        errorMsg.includes("provider is not enabled") ||
+        errorMsg.includes("Unsupported provider") ||
+        errCode === "validation_failed"
+      ) {
+        userFriendlyMsg =
+          "❌ Google provider غير مفعّل في Supabase Dashboard. فعّله من: Authentication → Providers → Google";
       }
-      
-      return NextResponse.redirect(`${origin}/auth/login?error=${encodeURIComponent(userFriendlyMsg)}`);
+
+      return NextResponse.redirect(
+        `${origin}/auth/login?error=${encodeURIComponent(userFriendlyMsg)}`
+      );
     }
   }
 
-  // Redirect to home page
   return NextResponse.redirect(new URL("/", origin));
 }

@@ -25,7 +25,7 @@ async function main() {
     // تحديث جميع المنتجات التي لا تحتوي على companyId
     const result = await prisma.product.updateMany({
       where: {
-        companyId: null,
+        companyId: null as any,
       },
       data: {
         companyId: defaultCompany.id,

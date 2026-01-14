@@ -69,8 +69,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("Error signing in with Google:", error);
         
         // Extract error message from different possible formats
-        const errorMsg = error.message || error.msg || error.error_description || "";
-        const errorCode = error.code || error.error_code || "";
+        const errorMsg = error.message || "";
+        const errorCode = error.status?.toString() || "";
         
         // Check for provider not enabled error
         if (errorMsg.includes("provider is not enabled") || 
