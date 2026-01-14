@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  imageUrl  String?
+  createdAt DateTime @default(now())
+
+  products Product[]   // 👈 علاقة عكسية
+}
+
+model Company {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  logoUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]   // 👈 علاقة عكسية
+  
+  @@index([name])
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  price       Float
+  description String
+
+  categoryId  Int      // ✅ نفس نوع Category.id
+  category    Category @relation(fields: [categoryId], references: [id])
+
+  companyId   Int      // ✅ معرف الشركة (مطلوب)
+  company     Company  @relation(fields: [companyId], references: [id])
+
+  createdAt   DateTime @default(now())
+
+  // New fields for collections and sales
+  isNew       Boolean  @default(false)
+  isOnSale    Boolean  @default(false)
+  discountPercent Int?  // 0-100
+  originalPrice Float?  // Original price before discount
+
+  images ProductImage[]
+  colors ProductColor[]
+  sizes  ProductSize[]
+  newArrival NewArrival? // علاقة مع البضاعة الجديدة
+}
+
+model ProductImage {
+  id        String  @id @default(uuid())
+  url       String
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model ProductColor {
+  id        String  @id @default(uuid())
+  name      String
+  hex       String
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model ProductSize {
+  id        String  @id @default(uuid())
+  size      String
+  quantity  Int
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Campaign {
+  id              String   @id @default(uuid())
+  title            String
+  description      String?
+  discountPercent  Int?     // نسبة الخصم (0-100)
+  discountAmount   Float?   // مبلغ الخصم الثابت
+  isActive         Boolean  @default(true)
+  showOnHomepage   Boolean  @default(false) // عرض في الصفحة الرئيسية
+  startDate        DateTime?
+  endDate          DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  products         CampaignProduct[]
+}
+
+model CampaignProduct {
+  id          String   @id @default(uuid())
+  campaignId  String
+  productId  String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  
+  @@unique([campaignId, productId])
+  @@index([productId])
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // Hashed password using bcrypt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([email])
+}
+
+model NewArrival {
+  id        String   @id @default(uuid())
+  productId String   @unique
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  order     Int      @default(0) // ترتيب العرض
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([productId])
+  @@index([order])
+}
