@@ -9,21 +9,6 @@ export async function GET(
     const { id } = await params;
     console.log("Fetching product with ID:", id);
     
-    // فحص الاتصال بقاعدة البيانات أولاً
-    try {
-      await prisma.$connect();
-    } catch (connectError: any) {
-      console.error("Database connection failed:", connectError);
-      return NextResponse.json(
-        {
-          error: "Database connection error",
-          message: "لا يمكن الاتصال بقاعدة البيانات. يرجى التحقق من إعدادات DATABASE_URL في ملف .env",
-          id,
-        },
-        { status: 500 }
-      );
-    }
-    
     const product = await prisma.product.findUnique({
       where: { id },
       include: {
@@ -84,12 +69,5 @@ export async function GET(
       },
       { status: 500 }
     );
-  } finally {
-    // إغلاق الاتصال برفق
-    try {
-      await prisma.$disconnect();
-    } catch (e) {
-      // تجاهل أخطاء الإغلاق
-    }
   }
 }

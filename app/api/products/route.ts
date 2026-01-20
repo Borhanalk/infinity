@@ -10,23 +10,6 @@ export async function GET(req: Request) {
 
         console.log("GET /products - categoryId:", categoryId, "filter:", filter, "onSale:", onSale);
 
-        // فحص الاتصال بقاعدة البيانات أولاً
-        try {
-            await prisma.$connect();
-        } catch (connectError: any) {
-            console.error("Database connection failed:", connectError);
-            const errorMessage = connectError?.message || "Connection failed";
-            return NextResponse.json(
-                {
-                    error: "Database connection error",
-                    message: "لا يمكن الاتصال بقاعدة البيانات. يرجى التحقق من إعدادات DATABASE_URL في ملف .env",
-                    products: [],
-                    details: process.env.NODE_ENV === "development" ? errorMessage : undefined,
-                },
-                { status: 200 }
-            );
-        }
-
         const where: any = {};
 
         if (categoryId) {
@@ -96,12 +79,5 @@ export async function GET(req: Request) {
             },
             { status: 200 }
         );
-    } finally {
-        // إغلاق الاتصال برفق
-        try {
-            await prisma.$disconnect();
-        } catch (e) {
-            // تجاهل أخطاء الإغلاق
-        }
     }
 }
