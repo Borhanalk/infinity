@@ -29,9 +29,16 @@ async function verifyAdmin(request: NextRequest) {
     // ✅ Token من cookies
     const token = request.cookies.get("admin_token")?.value;
 
-    if (!token) return null;
+    if (!token) {
+      return null;
+    }
 
+    // التحقق من صحة Token
     const decoded = jwt.verify(token, JWT_SECRET) as { id: string; email: string };
+
+    if (!decoded || !decoded.id) {
+      return null;
+    }
 
     // ✅ تحقق من وجود الأدمن في DB
     const admin = await prisma.admin.findUnique({
@@ -40,7 +47,9 @@ async function verifyAdmin(request: NextRequest) {
     });
 
     return admin;
-  } catch {
+  } catch (error) {
+    // في حالة خطأ في JWT أو قاعدة البيانات، نعيد null
+    console.error("Error verifying admin:", error);
     return null;
   }
 }
