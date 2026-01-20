@@ -46,7 +46,9 @@ export async function GET(
       errorMessage.includes("connection") ||
       errorMessage.includes("Invalid") ||
       errorMessage.includes("P1001") ||
-      errorMessage.includes("P2002");
+      errorMessage.includes("P1000") ||
+      errorMessage.includes("P2002") ||
+      errorMessage.includes("Can't reach database server");
 
     return NextResponse.json(
       {

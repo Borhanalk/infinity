@@ -62,7 +62,12 @@ export default function ProductDetailPage() {
         const data = await res.json();
 
         if (!res.ok) {
-          throw new Error(data.details || data.error || `فشل تحميل المنتج (${res.status})`);
+          const errorMsg = data.details || data.error || `فشل تحميل المنتج (${res.status})`;
+          // إذا كان الخطأ متعلق بقاعدة البيانات، لا نرمي خطأ بل نعرض رسالة واضحة
+          if (errorMsg.includes("Database connection")) {
+            throw new Error("لا يمكن الاتصال بقاعدة البيانات. يرجى المحاولة لاحقاً.");
+          }
+          throw new Error(errorMsg);
         }
 
         if (data.error) {

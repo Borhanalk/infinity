@@ -27,9 +27,7 @@ export async function GET() {
     return NextResponse.json(products);
   } catch (error: any) {
     console.error("GET /new-arrivals ERROR:", error);
-    return NextResponse.json(
-      { error: "فشل جلب البضاعة الجديدة" },
-      { status: 500 }
-    );
+    // إرجاع مصفوفة فارغة بدلاً من خطأ لتجنب توقف التطبيق
+    return NextResponse.json([], { status: 200 });
   }
 }

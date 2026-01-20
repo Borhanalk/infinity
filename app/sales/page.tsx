@@ -27,13 +27,27 @@ export default function SalesPage() {
         const res = await fetch("/api/products?onSale=true", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
-          setProducts(Array.isArray(data) ? data.filter((p: Product) => p.isOnSale) : []);
+          // التحقق من وجود products في الـ response (في حالة وجود خطأ)
+          if (data.products) {
+            setProducts(Array.isArray(data.products) ? data.products.filter((p: Product) => p.isOnSale) : []);
+          } else if (Array.isArray(data)) {
+            setProducts(data.filter((p: Product) => p.isOnSale));
+          } else {
+            setProducts([]);
+          }
         } else {
           const errorData = await res.json().catch(() => ({}));
+          // إذا كان هناك products في الـ response حتى مع وجود خطأ، استخدمها
+          if (errorData.products) {
+            setProducts(Array.isArray(errorData.products) ? errorData.products.filter((p: Product) => p.isOnSale) : []);
+          } else {
+            setProducts([]);
+          }
           console.error("Failed to load products:", errorData);
         }
       } catch (err) {
         console.error("Error loading products:", err);
+        setProducts([]);
       } finally {
         setLoading(false);
       }

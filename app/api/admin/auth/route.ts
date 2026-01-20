@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/app/lib/prisma";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
-const prisma = new PrismaClient();
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
 
 // تسجيل الدخول
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    const body = await req.json();
+    const { email, password } = body;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -21,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     // البحث عن المسؤول
     const admin = await prisma.admin.findUnique({
-      where: { email },
+      where: { email: email.toLowerCase().trim() },
     });
 
     if (!admin) {
@@ -59,11 +58,13 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Error in admin login:", error);
+    const errorMessage = error?.message || "حدث خطأ أثناء تسجيل الدخول";
     return NextResponse.json(
-      { error: "حدث خطأ أثناء تسجيل الدخول" },
+      { 
+        error: "حدث خطأ أثناء تسجيل الدخول",
+        details: process.env.NODE_ENV === "development" ? errorMessage : undefined
+      },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

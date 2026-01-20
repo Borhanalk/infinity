@@ -58,7 +58,14 @@ export default function SalePage() {
     fetch("/api/products")
       .then((res) => res.json())
       .then((data) => {
-        setProducts(Array.isArray(data) ? data : []);
+        // التحقق من وجود products في الـ response (في حالة وجود خطأ)
+        if (data.products) {
+          setProducts(Array.isArray(data.products) ? data.products : []);
+        } else if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          setProducts([]);
+        }
         setLoading(false);
       })
       .catch(() => {
@@ -71,7 +78,7 @@ export default function SalePage() {
 
   const filteredProducts = saleProducts.filter((product) => {
     if (activeFilter === "all") return true;
-    
+
     const discount = product.originalPrice && product.originalPrice > product.price
       ? ((product.originalPrice - product.price) / product.originalPrice) * 100
       : product.discountPercent || 0;

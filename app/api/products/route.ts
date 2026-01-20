@@ -47,16 +47,21 @@ export async function GET(req: Request) {
             errorMessage.includes("not found") ||
             errorMessage.includes("connection") ||
             errorMessage.includes("Invalid") ||
-            errorMessage.includes("P1001");
+            errorMessage.includes("P1001") ||
+            errorMessage.includes("P1000") ||
+            errorMessage.includes("Can't reach database server");
 
+        // إرجاع مصفوفة فارغة بدلاً من خطأ لتجنب توقف التطبيق
+        // يمكن للصفحة أن تتعامل مع المصفوفة الفارغة بشكل أفضل
         return NextResponse.json(
             {
-                error: "Failed to fetch products",
-                details: isConnectionError
+                error: isConnectionError
                     ? "Database connection error. Please check your DATABASE_URL in .env file"
-                    : errorMessage
+                    : "Failed to fetch products",
+                products: [], // مصفوفة فارغة لتجنب توقف التطبيق
+                details: process.env.NODE_ENV === "development" ? errorMessage : undefined
             },
-            { status: 500 }
+            { status: 200 } // 200 بدلاً من 500 حتى لا يتوقف التطبيق
         );
     }
 }

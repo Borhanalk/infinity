@@ -76,14 +76,14 @@ function MarqueeSection() {
             <span>חליפות פשתן קיץ</span>
           </div>
         </div>
-      <Link
-        href="/sale"
-        className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-xs sm:text-sm font-black px-4 sm:px-6 lg:px-8 flex items-center gap-1 sm:gap-2 z-20 transition-all duration-300 shadow-lg hover:shadow-xl uppercase tracking-wide"
-      >
-        <ArrowRight size={14} className="group-hover:-translate-x-1 transition-transform rotate-180" />
-        <span className="hidden sm:inline">צפה במבצעים</span>
-        <span className="sm:hidden">מבצעים</span>
-      </Link>
+        <Link
+          href="/sale"
+          className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-xs sm:text-sm font-black px-4 sm:px-6 lg:px-8 flex items-center gap-1 sm:gap-2 z-20 transition-all duration-300 shadow-lg hover:shadow-xl uppercase tracking-wide"
+        >
+          <ArrowRight size={14} className="group-hover:-translate-x-1 transition-transform rotate-180" />
+          <span className="hidden sm:inline">צפה במבצעים</span>
+          <span className="sm:hidden">מבצעים</span>
+        </Link>
       </div>
     );
   }
@@ -128,7 +128,10 @@ export default function Home() {
     fetch("/api/new-arrivals")
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
+        // التحقق من وجود products في الـ response (في حالة وجود خطأ)
+        if (data.products) {
+          setNewProducts(Array.isArray(data.products) ? data.products : []);
+        } else if (Array.isArray(data)) {
           setNewProducts(data);
         } else {
           setNewProducts([]);
@@ -141,7 +144,10 @@ export default function Home() {
         fetch("/api/products?filter=new")
           .then((res) => res.json())
           .then((data) => {
-            if (Array.isArray(data)) {
+            // التحقق من وجود products في الـ response
+            if (data.products) {
+              setNewProducts(Array.isArray(data.products) ? data.products : []);
+            } else if (Array.isArray(data)) {
               setNewProducts(data);
             } else {
               setNewProducts([]);

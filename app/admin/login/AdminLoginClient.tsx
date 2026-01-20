@@ -44,7 +44,8 @@ export default function AdminLoginClient() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "حدث خطأ أثناء تسجيل الدخول");
+        const errorMessage = data.error || data.details || "حدث خطأ أثناء تسجيل الدخول";
+        setError(errorMessage);
         setLoading(false);
         return;
       }
@@ -61,9 +62,13 @@ export default function AdminLoginClient() {
         // إعادة التوجيه إلى لوحة التحكم أو الصفحة المطلوبة
         const returnTo = searchParams.get("returnTo") || "/admin";
         router.push(returnTo);
+      } else {
+        setError("حدث خطأ أثناء تسجيل الدخول - لم يتم استلام token");
+        setLoading(false);
       }
     } catch (err: any) {
-      setError(err.message || "حدث خطأ أثناء تسجيل الدخول");
+      console.error("Login error:", err);
+      setError(err.message || "حدث خطأ أثناء تسجيل الدخول. يرجى التحقق من الاتصال بالخادم.");
       setLoading(false);
     }
   };

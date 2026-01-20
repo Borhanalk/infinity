@@ -77,11 +77,28 @@ export default function ProductsListPage() {
 
       if (prodRes.ok) {
         const prods = await prodRes.json();
-        setProducts(Array.isArray(prods) ? prods : []);
+        // التحقق من وجود products في الـ response (في حالة وجود خطأ)
+        if (prods.products) {
+          setProducts(Array.isArray(prods.products) ? prods.products : []);
+          if (prods.error) {
+            // إظهار تحذير فقط، لا خطأ
+            console.warn("⚠️ Database connection issue:", prods.error);
+          }
+        } else {
+          setProducts(Array.isArray(prods) ? prods : []);
+        }
       } else {
         const errorData = await prodRes.json().catch(() => ({}));
-        setError(errorData.details || errorData.error || "فشل تحميل المنتجات");
-        setProducts([]);
+        // إذا كان هناك products في الـ response حتى مع وجود خطأ، استخدمها
+        if (errorData.products) {
+          setProducts(Array.isArray(errorData.products) ? errorData.products : []);
+        } else {
+          setProducts([]);
+        }
+        // إظهار خطأ فقط إذا لم تكن هناك منتجات
+        if (!errorData.products || errorData.products.length === 0) {
+          setError(errorData.details || errorData.error || "فشل تحميل المنتجات");
+        }
       }
     } catch (err: any) {
       setError(err.message || "فشل تحميل المنتجات");
@@ -96,11 +113,11 @@ export default function ProductsListPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const categoryIdParam = urlParams.get("categoryId");
     const categoryId = categoryIdParam ? Number(categoryIdParam) : undefined;
-    
+
     if (categoryId) {
       setFilterCategory(categoryId);
     }
-    
+
     loadData(categoryId);
   }, []);
 
@@ -174,13 +191,6 @@ export default function ProductsListPage() {
           {loading && (
             <div className="text-center py-20 text-muted-foreground text-xl">جاري التحميل...</div>
           )}
-          {error && (
-            <Card className="mb-8 border-destructive/50 bg-destructive/10">
-              <CardContent className="p-6">
-                <p className="text-destructive">{error}</p>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Products Grid */}
           {!loading && filtered.length > 0 && (
@@ -195,8 +205,21 @@ export default function ProductsListPage() {
             <Card className="text-center py-20">
               <CardContent>
                 <div className="text-6xl mb-6 opacity-30">🔍</div>
-                <div className="text-muted-foreground text-xl mb-2">لم يتم العثور على منتجات</div>
-                <div className="text-muted-foreground/70 text-sm">جرب مصطلحات بحث مختلفة</div>
+                <div className="text-muted-foreground text-xl mb-2">
+                  {error && error.includes("Database connection")
+                    ? "لا يمكن الاتصال بقاعدة البيانات"
+                    : "لم يتم العثور على منتجات"}
+                </div>
+                <div className="text-muted-foreground/70 text-sm">
+                  {error && error.includes("Database connection")
+                    ? "يرجى التحقق من إعدادات قاعدة البيانات"
+                    : "جرب مصطلحات بحث مختلفة"}
+                </div>
+                {error && error.includes("Database connection") && (
+                  <div className="mt-4 text-xs text-muted-foreground/60">
+                    {error}
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
