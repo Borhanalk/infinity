@@ -9,6 +9,8 @@ export async function GET(req: Request) {
         const onSale = searchParams.get("onSale");
 
         console.log("GET /products - categoryId:", categoryId, "filter:", filter, "onSale:", onSale);
+        console.log("Environment:", process.env.NODE_ENV);
+        console.log("Database URL exists:", !!process.env.DATABASE_URL);
 
         const where: any = {};
 
@@ -40,7 +42,14 @@ export async function GET(req: Request) {
         });
 
         console.log("GET /products - Found products:", products.length);
-        return NextResponse.json(products);
+        
+        // إضافة headers للاستجابة
+        return NextResponse.json(products, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+            },
+        });
     } catch (error: any) {
         console.error("GET /products ERROR:", error);
         console.error("Error code:", error?.code);
@@ -77,7 +86,13 @@ export async function GET(req: Request) {
                     ? `${errorMessage} (Code: ${errorCode})` 
                     : undefined
             },
-            { status: 200 }
+            { 
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                },
+            }
         );
     }
 }

@@ -58,15 +58,37 @@ export default function ProductsListPage() {
       setError("");
       setLoading(true);
 
+      // إضافة timeout للطلبات
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 ثانية
+
       const [catRes, prodRes] = await Promise.all([
-        fetch("/api/categories", { cache: "no-store" }),
+        fetch("/api/categories", {
+          cache: "no-store",
+          signal: controller.signal,
+        }).catch((err) => {
+          if (err.name === 'AbortError') {
+            throw new Error("انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى.");
+          }
+          throw err;
+        }),
         fetch(
           categoryId
             ? `/api/products?categoryId=${categoryId}`
             : "/api/products",
-          { cache: "no-store" }
-        ),
+          {
+            cache: "no-store",
+            signal: controller.signal,
+          }
+        ).catch((err) => {
+          if (err.name === 'AbortError') {
+            throw new Error("انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى.");
+          }
+          throw err;
+        }),
       ]);
+
+      clearTimeout(timeoutId);
 
       if (catRes.ok) {
         const cats = await catRes.json();
@@ -77,19 +99,35 @@ export default function ProductsListPage() {
 
       if (prodRes.ok) {
         const prods = await prodRes.json();
-        // التحقق من وجود products في الـ response (في حالة وجود خطأ)
-        if (prods.products !== undefined) {
-          // إذا كان هناك products في الـ response (حتى لو كان مصفوفة فارغة)
-          setProducts(Array.isArray(prods.products) ? prods.products : []);
-          if (prods.error || prods.message) {
-            // إظهار رسالة الخطأ بشكل واضح
+
+        // التحقق من نوع الاستجابة
+        if (Array.isArray(prods)) {
+          // إذا كان الـ response مصفوفة مباشرة (حالة النجاح العادية)
+          setProducts(prods);
+          if (prods.length === 0) {
+            setError("لا توجد منتجات متاحة حالياً");
+          }
+        } else if (prods && typeof prods === 'object') {
+          // إذا كان الـ response كائن (قد يحتوي على error أو products)
+          if (prods.products !== undefined) {
+            // إذا كان هناك products في الـ response
+            setProducts(Array.isArray(prods.products) ? prods.products : []);
+            if (prods.error || prods.message) {
+              // إظهار رسالة الخطأ بشكل واضح
+              const errorMsg = prods.message || prods.error || "حدث خطأ في تحميل المنتجات";
+              setError(errorMsg);
+              console.warn("⚠️ Database connection issue:", prods.error || prods.message);
+            }
+          } else if (prods.error || prods.message) {
+            // إذا كان هناك خطأ فقط بدون products
+            setProducts([]);
             const errorMsg = prods.message || prods.error || "حدث خطأ في تحميل المنتجات";
             setError(errorMsg);
-            console.warn("⚠️ Database connection issue:", prods.error || prods.message);
+          } else {
+            // استجابة غير متوقعة
+            setProducts([]);
+            setError("فشل تحميل المنتجات - استجابة غير صحيحة من السيرفر");
           }
-        } else if (Array.isArray(prods)) {
-          // إذا كان الـ response مصفوفة مباشرة (بدون error)
-          setProducts(prods);
         } else {
           setProducts([]);
           setError("فشل تحميل المنتجات - استجابة غير صحيحة من السيرفر");
@@ -99,11 +137,13 @@ export default function ProductsListPage() {
         // إذا كان هناك products في الـ response حتى مع وجود خطأ، استخدمها
         if (errorData.products !== undefined) {
           setProducts(Array.isArray(errorData.products) ? errorData.products : []);
+        } else if (Array.isArray(errorData)) {
+          setProducts(errorData);
         } else {
           setProducts([]);
         }
         // إظهار خطأ بشكل واضح
-        const errorMsg = errorData.message || errorData.details || errorData.error || "فشل تحميل المنتجات";
+        const errorMsg = errorData.message || errorData.details || errorData.error || `فشل تحميل المنتجات (${prodRes.status})`;
         setError(errorMsg);
       }
     } catch (err: any) {

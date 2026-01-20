@@ -59,14 +59,22 @@ export default function ProductDetailPage() {
       return;
     }
 
-    fetch(`/api/products/${id}`)
+    // إضافة timeout للطلب
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 ثانية
+
+    fetch(`/api/products/${id}`, {
+      signal: controller.signal,
+      cache: "no-store",
+    })
       .then(async (res) => {
+        clearTimeout(timeoutId);
         const data = await res.json();
 
         if (!res.ok) {
-          const errorMsg = data.details || data.error || `فشل تحميل المنتج (${res.status})`;
+          const errorMsg = data.details || data.message || data.error || `فشل تحميل المنتج (${res.status})`;
           // إذا كان الخطأ متعلق بقاعدة البيانات، لا نرمي خطأ بل نعرض رسالة واضحة
-          if (errorMsg.includes("Database connection")) {
+          if (errorMsg.includes("Database connection") || errorMsg.includes("قاعدة البيانات")) {
             throw new Error("لا يمكن الاتصال بقاعدة البيانات. يرجى المحاولة لاحقاً.");
           }
           throw new Error(errorMsg);
@@ -86,7 +94,12 @@ export default function ProductDetailPage() {
         setLoading(false);
       })
       .catch((err) => {
-        setError(err.message || "فشل تحميل المنتج");
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+          setError("انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى.");
+        } else {
+          setError(err.message || "فشل تحميل المنتج");
+        }
         setLoading(false);
       });
   }, [id]);

@@ -24,12 +24,22 @@ export async function GET(
       console.log("Product not found:", id);
       return NextResponse.json(
         { error: "Product not found", id },
-        { status: 404 }
+        { 
+          status: 404,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
       );
     }
 
     console.log("Product found:", product.name);
-    return NextResponse.json(product);
+    return NextResponse.json(product, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+        },
+    });
   } catch (error: any) {
     const { id } = await params;
     console.error("GET /products/:id ERROR:", error);
