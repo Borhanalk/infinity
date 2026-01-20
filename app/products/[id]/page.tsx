@@ -112,7 +112,7 @@ export default function ProductDetailPage() {
         <Card className="p-12 text-center">
           <CardContent>
             <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-muted-foreground" />
-            <div className="text-muted-foreground text-lg">جاري التحميل...</div>
+            <div className="text-muted-foreground text-lg">טוען...</div>
           </CardContent>
         </Card>
       </div>
@@ -126,7 +126,7 @@ export default function ProductDetailPage() {
           <Card className="border-destructive/50 bg-destructive/10">
             <CardContent className="p-8">
               <AlertCircle className="w-12 h-12 text-destructive mb-4" />
-              <h2 className="text-2xl font-black mb-2 text-destructive">فشل تحميل المنتج</h2>
+              <h2 className="text-2xl font-black mb-2 text-destructive">נכשל בטעינת המוצר</h2>
               <p className="text-muted-foreground mb-4">{error}</p>
             </CardContent>
           </Card>
@@ -175,13 +175,13 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/20 text-foreground pt-20 sm:pt-24" dir="rtl">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8 xl:py-16">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/20 text-foreground pt-16 sm:pt-20 lg:pt-24 overflow-x-hidden" dir="rtl">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8 xl:py-16 overflow-hidden">
         {/* Breadcrumb */}
         <div className="mb-4 sm:mb-6 lg:mb-8 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
-          <Link href="/" className="hover:text-foreground transition-colors">الرئيسية</Link>
+          <Link href="/" className="hover:text-foreground transition-colors">בית</Link>
           <ArrowRight size={14} className="rotate-180 sm:w-4 sm:h-4" />
-          <Link href="/products" className="hover:text-foreground transition-colors">المنتجات</Link>
+          <Link href="/products" className="hover:text-foreground transition-colors">מוצרים</Link>
           {product.category && (
             <>
               <ArrowRight size={14} className="rotate-180 sm:w-4 sm:h-4" />
@@ -209,7 +209,7 @@ export default function ProductDetailPage() {
                 <div className="absolute top-1 right-1 flex flex-col gap-1 z-10">
                   {product.isNew && (
                     <Badge variant="new" className="text-[10px] px-1.5 py-0.5 uppercase tracking-wider font-black shadow-lg">
-                      جديد
+                      חדש
                     </Badge>
                   )}
                   {product.isOnSale && discountPercent > 0 && (
@@ -342,14 +342,14 @@ export default function ProductDetailPage() {
                     />
                   ) : null}
                   <div>
-                    <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">العلامة التجارية</p>
+                    <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">מותג</p>
                     <p className="text-lg font-black text-foreground">{product.company.name}</p>
                   </div>
                 </div>
               )}
 
               <h1 className="text-4xl xl:text-5xl 2xl:text-6xl font-black mb-6 leading-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                {product.name || "منتج"}
+                {product.name || "מוצר"}
               </h1>
 
               {/* Price Section */}
@@ -357,7 +357,7 @@ export default function ProductDetailPage() {
                 {product.isOnSale && product.originalPrice && product.originalPrice > product.price && (
                   <div className="flex flex-col">
                     <span className="text-xl text-destructive line-through font-medium">{product.originalPrice.toFixed(2)} ₪</span>
-                    <span className="text-sm text-destructive font-black">وفر {Math.round(product.originalPrice - product.price)} ₪</span>
+                    <span className="text-sm text-destructive font-black">חסכת {Math.round(product.originalPrice - product.price)} ₪</span>
                   </div>
                 )}
                 <div className="flex items-baseline gap-2">
@@ -378,7 +378,7 @@ export default function ProductDetailPage() {
             <div className="p-4 sm:p-5 lg:p-6 bg-secondary/10 rounded-xl lg:rounded-2xl border border-border/30">
               <h2 className="text-lg sm:text-xl lg:text-2xl font-black mb-3 sm:mb-4 text-foreground flex items-center gap-2">
                 <Package className="w-5 h-5 sm:w-6 sm:h-6 text-[#D4AF37]" />
-                الوصف
+                תיאור
               </h2>
               <p className="text-muted-foreground leading-relaxed text-sm sm:text-base lg:text-lg whitespace-pre-line">{product.description}</p>
             </div>
@@ -388,7 +388,7 @@ export default function ProductDetailPage() {
               <div className="p-6 bg-secondary/10 rounded-2xl border border-border/30">
                 <div className="text-sm text-muted-foreground mb-4 uppercase tracking-wider font-bold flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-[#D4AF37]" />
-                  اختر اللون
+                  בחר צבע
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {product.colors.map((c) => (
@@ -414,7 +414,7 @@ export default function ProductDetailPage() {
                   ))}
                 </div>
                 {selectedColor && (
-                  <p className="mt-3 text-sm text-muted-foreground">اللون المختار: <span className="font-black text-foreground">{selectedColor}</span></p>
+                  <p className="mt-3 text-sm text-muted-foreground">הצבע שנבחר: <span className="font-black text-foreground">{selectedColor}</span></p>
                 )}
               </div>
             )}
@@ -424,27 +424,27 @@ export default function ProductDetailPage() {
               <div className="p-6 bg-secondary/10 rounded-2xl border border-border/30">
                 <div className="text-sm text-muted-foreground mb-4 uppercase tracking-wider font-bold flex items-center gap-2">
                   <Package className="w-4 h-4" />
-                  اختر المقاس
+                  בחר מידה
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {product.sizes.map((s) => (
                     <Button
                       key={s.id}
                       variant={selectedSize === s.size ? "default" : "outline"}
-                      size="lg"
+                      size="default"
                       onClick={() => s.quantity > 0 && setSelectedSize(s.size)}
                       disabled={s.quantity === 0}
                       className={cn(
-                        "min-w-[90px] h-14 text-base font-black transition-all duration-300",
+                        "min-w-[80px] font-bold transition-all duration-300",
                         selectedSize === s.size
-                          ? "bg-[#D4AF37] hover:bg-[#C9A961] text-black border-2 border-[#D4AF37] shadow-lg scale-105"
+                          ? "bg-[#D4AF37] hover:bg-[#C9A961] text-black border-2 border-[#D4AF37] shadow-lg"
                           : "hover:border-[#D4AF37]/50",
                         s.quantity === 0 && "opacity-40 cursor-not-allowed line-through"
                       )}
                     >
                       {s.size}
                       {s.quantity > 0 && s.quantity < 5 && (
-                        <span className="text-xs text-destructive mr-1">({s.quantity} متبقي)</span>
+                        <span className="text-xs text-destructive mr-1">({s.quantity} נותרו)</span>
                       )}
                     </Button>
                   ))}
@@ -455,8 +455,8 @@ export default function ProductDetailPage() {
                     selectedSizeData.quantity > 0 ? "text-green-600" : "text-destructive"
                   )}>
                     {selectedSizeData.quantity > 0
-                      ? `✓ متوفر (${selectedSizeData.quantity} قطعة)`
-                      : "✗ غير متوفر"}
+                      ? `✓ זמין (${selectedSizeData.quantity} יחידות)`
+                      : "✗ לא זמין"}
                   </p>
                 )}
               </div>
@@ -464,24 +464,24 @@ export default function ProductDetailPage() {
 
             {/* Quantity Selector */}
             <div className="p-6 bg-secondary/10 rounded-2xl border border-border/30">
-              <div className="text-sm text-muted-foreground mb-4 uppercase tracking-wider font-bold">الكمية</div>
+              <div className="text-sm text-muted-foreground mb-4 uppercase tracking-wider font-bold">כמות</div>
               <div className="flex items-center gap-4">
                 <Button
                   variant="outline"
-                  size="lg"
+                  size="icon"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   disabled={quantity <= 1}
-                  className="w-12 h-12 text-xl font-black"
+                  className="font-bold"
                 >
                   −
                 </Button>
-                <span className="text-2xl font-black min-w-[60px] text-center">{quantity}</span>
+                <span className="text-xl sm:text-2xl font-black min-w-[50px] sm:min-w-[60px] text-center">{quantity}</span>
                 <Button
                   variant="outline"
-                  size="lg"
+                  size="icon"
                   onClick={() => setQuantity(quantity + 1)}
                   disabled={isOutOfStock || (selectedSizeData && quantity >= selectedSizeData.quantity)}
-                  className="w-12 h-12 text-xl font-black"
+                  className="font-bold"
                 >
                   +
                 </Button>
@@ -494,10 +494,10 @@ export default function ProductDetailPage() {
             <div className="space-y-4">
               <Button
                 variant="gold"
-                size="xl"
+                size="lg"
                 disabled={isOutOfStock}
                 className={cn(
-                  "w-full h-16 text-lg uppercase tracking-wide shadow-2xl hover:shadow-3xl transition-all duration-300",
+                  "w-full font-bold",
                   addedToCart && "bg-green-600 hover:bg-green-700",
                   isOutOfStock && "opacity-50 cursor-not-allowed"
                 )}
@@ -505,18 +505,18 @@ export default function ProductDetailPage() {
               >
                 {addedToCart ? (
                   <>
-                    <CheckCircle2 size={24} className="ml-2" />
-                    تمت الإضافة إلى السلة!
+                    <CheckCircle2 size={20} className="ml-2" />
+                    נוסף לעגלה!
                   </>
                 ) : isOutOfStock ? (
                   <>
-                    <AlertCircle size={24} className="ml-2" />
-                    غير متوفر
+                    <AlertCircle size={20} className="ml-2" />
+                    לא זמין
                   </>
                 ) : (
                   <>
-                    <ShoppingBag size={24} className="ml-2" />
-                    أضف إلى السلة
+                    <ShoppingBag size={20} className="ml-2" />
+                    הוסף לעגלה
                   </>
                 )}
               </Button>
@@ -524,12 +524,12 @@ export default function ProductDetailPage() {
               {addedToCart && (
                 <Button
                   variant="outline"
-                  size="lg"
-                  className="w-full"
+                  size="default"
+                  className="w-full font-semibold"
                   onClick={() => router.push("/cart")}
                 >
-                  <ShoppingBag size={20} className="ml-2" />
-                  عرض السلة
+                  <ShoppingBag size={18} className="ml-2" />
+                  הצג עגלה
                 </Button>
               )}
             </div>
@@ -603,7 +603,7 @@ export default function ProductDetailPage() {
                 ))}
               </div>
               {selectedColor && (
-                <p className="mt-2 text-xs text-muted-foreground">اللون: <span className="font-black text-foreground">{selectedColor}</span></p>
+                  <p className="mt-2 text-xs text-muted-foreground">צבע: <span className="font-black text-foreground">{selectedColor}</span></p>
               )}
             </div>
           )}
@@ -613,7 +613,7 @@ export default function ProductDetailPage() {
             <div className="p-3 bg-secondary/10 rounded-lg border border-border/30">
               <div className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-bold flex items-center gap-1.5">
                 <Package className="w-3.5 h-3.5" />
-                اختر المقاس
+                בחר מידה
               </div>
               <div className="flex flex-wrap gap-2">
                 {product.sizes.map((s) => (
@@ -644,8 +644,8 @@ export default function ProductDetailPage() {
                   selectedSizeData.quantity > 0 ? "text-green-600" : "text-destructive"
                 )}>
                   {selectedSizeData.quantity > 0
-                    ? `✓ متوفر (${selectedSizeData.quantity})`
-                    : "✗ غير متوفر"}
+                    ? `✓ זמין (${selectedSizeData.quantity})`
+                    : "✗ לא זמין"}
                 </p>
               )}
             </div>
@@ -653,24 +653,24 @@ export default function ProductDetailPage() {
 
           {/* Quantity Selector */}
           <div className="p-3 bg-secondary/10 rounded-lg border border-border/30">
-            <div className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-bold">الكمية</div>
+            <div className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-bold">כמות</div>
             <div className="flex items-center gap-3">
               <Button
                 variant="outline"
-                size="sm"
+                size="icon"
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 disabled={quantity <= 1}
-                className="w-10 h-10 text-lg font-black"
+                className="h-9 w-9 font-bold"
               >
                 −
               </Button>
-              <span className="text-xl font-black min-w-[50px] text-center">{quantity}</span>
+              <span className="text-lg sm:text-xl font-black min-w-[45px] sm:min-w-[50px] text-center">{quantity}</span>
               <Button
                 variant="outline"
-                size="sm"
+                size="icon"
                 onClick={() => setQuantity(quantity + 1)}
                 disabled={isOutOfStock || (selectedSizeData && quantity >= selectedSizeData.quantity)}
-                className="w-10 h-10 text-lg font-black"
+                className="h-9 w-9 font-bold"
               >
                 +
               </Button>
@@ -695,17 +695,17 @@ export default function ProductDetailPage() {
               {addedToCart ? (
                 <>
                   <CheckCircle2 size={18} className="ml-2" />
-                  تمت الإضافة!
+                  נוסף לעגלה!
                 </>
               ) : isOutOfStock ? (
                 <>
                   <AlertCircle size={18} className="ml-2" />
-                  غير متوفر
+                  לא זמין
                 </>
               ) : (
                 <>
                   <ShoppingBag size={18} className="ml-2" />
-                  أضف إلى السلة
+                  הוסף לעגלה
                 </>
               )}
             </Button>
@@ -714,11 +714,11 @@ export default function ProductDetailPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full h-10"
+                className="w-full font-semibold"
                 onClick={() => router.push("/cart")}
               >
                 <ShoppingBag size={16} className="ml-2" />
-                عرض السلة
+                הצג עגלה
               </Button>
             )}
           </div>
@@ -727,15 +727,15 @@ export default function ProductDetailPage() {
           <div className="grid grid-cols-3 gap-2 pt-4">
             <div className="flex flex-col items-center gap-1.5 p-2 bg-secondary/10 rounded-lg border border-border/30">
               <Truck className="w-5 h-5 text-[#D4AF37]" />
-              <p className="text-[10px] text-muted-foreground font-bold text-center">شحن مجاني</p>
+                  <p className="text-[10px] text-muted-foreground font-bold text-center">משלוח חינם</p>
             </div>
             <div className="flex flex-col items-center gap-1.5 p-2 bg-secondary/10 rounded-lg border border-border/30">
               <Shield className="w-5 h-5 text-[#D4AF37]" />
-              <p className="text-[10px] text-muted-foreground font-bold text-center">ضمان 30 يوم</p>
+                  <p className="text-[10px] text-muted-foreground font-bold text-center">אחריות 30 יום</p>
             </div>
             <div className="flex flex-col items-center gap-1.5 p-2 bg-secondary/10 rounded-lg border border-border/30">
               <Package className="w-5 h-5 text-[#D4AF37]" />
-              <p className="text-[10px] text-muted-foreground font-bold text-center">إرجاع سهل</p>
+                  <p className="text-[10px] text-muted-foreground font-bold text-center">החזר קל</p>
             </div>
           </div>
         </div>

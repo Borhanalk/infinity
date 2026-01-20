@@ -241,6 +241,7 @@ a:active {
   /* Prevent horizontal scroll */
   body {
     overflow-x: hidden;
+    max-width: 100vw;
   }
 
   /* Better text readability on mobile */

@@ -65,77 +65,77 @@ export default function SalesPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#f5f5f5] pt-24">
-      <section className="py-20 px-4 md:px-16">
-        <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/20 text-foreground pt-16 sm:pt-20 lg:pt-24 overflow-x-hidden" dir="rtl">
+      <section className="py-6 sm:py-12 lg:py-16 xl:py-20 px-3 sm:px-4 lg:px-6 xl:px-16">
+        <div className="max-w-7xl mx-auto overflow-hidden">
           {/* Header */}
-          <div className="text-center mb-16">
-            <span className="text-[#C9A961] text-xs tracking-[0.3em] uppercase block mb-3 font-light">מבצעים</span>
-            <h1 className="text-5xl md:text-6xl serif-font mb-4 font-light">LAST CHANCE</h1>
-            <p className="text-gray-400 font-light">Limited time offers on premium pieces</p>
+          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+            <span className="text-[#D4AF37] text-xs sm:text-sm tracking-[0.3em] uppercase block mb-3 sm:mb-4 font-bold">מבצעים</span>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-3 sm:mb-4 bg-gradient-to-r from-foreground via-[#D4AF37] to-foreground/70 bg-clip-text text-transparent">הזדמנות אחרונה</h1>
+            <p className="text-gray-400 text-sm sm:text-base lg:text-lg font-medium">הצעות מוגבלות בזמן על פריטים יוקרתיים</p>
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap gap-3 mb-12 justify-center">
+          <div className="flex flex-wrap gap-2 sm:gap-3 mb-6 sm:mb-8 lg:mb-12 justify-center">
             <button
               onClick={() => setFilter("all")}
-              className={`px-6 py-2 border text-sm tracking-wider uppercase transition-colors ${
+              className={`px-4 sm:px-6 py-2 border-2 text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 rounded-lg font-semibold ${
                 filter === "all"
-                  ? "border-[#C9A961] bg-[#C9A961] text-black"
-                  : "border-[#2a2a2a] text-gray-400 hover:border-[#C9A961]"
+                  ? "border-[#D4AF37] bg-gradient-to-r from-[#D4AF37] to-[#C9A961] text-black shadow-lg scale-105"
+                  : "border-[#D4AF37]/30 text-gray-400 hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 hover:scale-105"
               }`}
             >
-              All Sales
+              כל המבצעים
             </button>
             <button
               onClick={() => setFilter("10-20")}
-              className={`px-6 py-2 border text-sm tracking-wider uppercase transition-colors ${
+              className={`px-4 sm:px-6 py-2 border-2 text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 rounded-lg font-semibold ${
                 filter === "10-20"
-                  ? "border-[#C9A961] bg-[#C9A961] text-black"
-                  : "border-[#2a2a2a] text-gray-400 hover:border-[#C9A961]"
+                  ? "border-[#D4AF37] bg-gradient-to-r from-[#D4AF37] to-[#C9A961] text-black shadow-lg scale-105"
+                  : "border-[#D4AF37]/30 text-gray-400 hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 hover:scale-105"
               }`}
             >
-              10-20% OFF
+              10-20% הנחה
             </button>
             <button
               onClick={() => setFilter("20-40")}
-              className={`px-6 py-2 border text-sm tracking-wider uppercase transition-colors ${
+              className={`px-4 sm:px-6 py-2 border-2 text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 rounded-lg font-semibold ${
                 filter === "20-40"
-                  ? "border-[#C9A961] bg-[#C9A961] text-black"
-                  : "border-[#2a2a2a] text-gray-400 hover:border-[#C9A961]"
+                  ? "border-[#D4AF37] bg-gradient-to-r from-[#D4AF37] to-[#C9A961] text-black shadow-lg scale-105"
+                  : "border-[#D4AF37]/30 text-gray-400 hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 hover:scale-105"
               }`}
             >
-              20-40% OFF
+              20-40% הנחה
             </button>
             <button
               onClick={() => setFilter("40+")}
-              className={`px-6 py-2 border text-sm tracking-wider uppercase transition-colors ${
+              className={`px-4 sm:px-6 py-2 border-2 text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 rounded-lg font-semibold ${
                 filter === "40+"
-                  ? "border-[#C9A961] bg-[#C9A961] text-black"
-                  : "border-[#2a2a2a] text-gray-400 hover:border-[#C9A961]"
+                  ? "border-[#D4AF37] bg-gradient-to-r from-[#D4AF37] to-[#C9A961] text-black shadow-lg scale-105"
+                  : "border-[#D4AF37]/30 text-gray-400 hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 hover:scale-105"
               }`}
             >
-              40%+ OFF
+              40%+ הנחה
             </button>
             <button
               onClick={() => setFilter("under99")}
-              className={`px-6 py-2 border text-sm tracking-wider uppercase transition-colors ${
+              className={`px-4 sm:px-6 py-2 border-2 text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 rounded-lg font-semibold ${
                 filter === "under99"
-                  ? "border-[#C9A961] bg-[#C9A961] text-black"
-                  : "border-[#2a2a2a] text-gray-400 hover:border-[#C9A961]"
+                  ? "border-[#D4AF37] bg-gradient-to-r from-[#D4AF37] to-[#C9A961] text-black shadow-lg scale-105"
+                  : "border-[#D4AF37]/30 text-gray-400 hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 hover:scale-105"
               }`}
             >
-              Under $99
+              מתחת ל-99 ₪
             </button>
           </div>
 
           {loading && (
-            <div className="text-center py-20 text-gray-500 font-light">Loading...</div>
+            <div className="text-center py-12 sm:py-20 text-gray-400 text-base sm:text-lg font-medium">טוען...</div>
           )}
 
           {/* Products Grid */}
           {!loading && filteredProducts.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6">
               {filteredProducts.map((p) => {
                 const img = p.images?.[0]?.url;
                 const originalPrice = p.originalPrice || p.price;
@@ -173,9 +173,9 @@ export default function SalesPage() {
                               image: img,
                             });
                           }}
-                          className="w-full text-white text-xs tracking-[0.2em] uppercase border border-white/20 py-3 hover:bg-white hover:text-black transition"
+                          className="w-full text-white text-xs tracking-[0.2em] uppercase border border-white/20 py-3 hover:bg-white hover:text-black transition font-semibold"
                         >
-                          Add to Cart
+                          הוסף לעגלה
                         </button>
                       </div>
                     </div>
@@ -193,10 +193,10 @@ export default function SalesPage() {
           )}
 
           {!loading && filteredProducts.length === 0 && (
-            <div className="text-center py-20">
+            <div className="text-center py-12 sm:py-20">
               <div className="text-5xl mb-4 opacity-30">⚜</div>
-              <div className="text-gray-400 text-lg font-light">No products found</div>
-              <div className="text-gray-500 text-sm mt-2 font-light">Try different filters</div>
+              <div className="text-gray-400 text-base sm:text-lg font-medium">לא נמצאו מוצרים</div>
+              <div className="text-gray-500 text-sm mt-2 font-medium">נסה מסננים שונים</div>
             </div>
           )}
         </div>

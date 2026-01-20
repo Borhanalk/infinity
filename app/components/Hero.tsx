@@ -12,27 +12,24 @@ export function Hero() {
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-secondary/20"></div>
       
       {/* Text Content - Left on mobile (RTL), Right on desktop */}
-      <div className="relative w-1/2 lg:w-1/2 flex flex-col justify-center p-2 sm:p-3 md:p-4 lg:p-6 xl:p-24 text-right z-10">
-        <span className="text-muted-foreground font-bold tracking-widest text-[9px] sm:text-[10px] md:text-xs mb-1.5 sm:mb-2 md:mb-4 lg:mb-6 uppercase animate-fade-in">EST. 2024</span>
-        <h1 className="text-base sm:text-lg md:text-2xl lg:text-4xl xl:text-6xl 2xl:text-8xl font-black mb-1.5 sm:mb-2 md:mb-4 lg:mb-6 leading-[1.1] animate-fade-in" style={{ animationDelay: "0.1s" }}>
-          <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-            אלגנטיות
+      <div className="relative w-1/2 lg:w-1/2 flex flex-col justify-center p-3 sm:p-4 md:p-6 lg:p-8 xl:p-24 text-right z-10 overflow-hidden">
+        <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black mb-2 sm:mb-3 md:mb-4 lg:mb-6 leading-tight animate-fade-in" style={{ animationDelay: "0.1s" }}>
+          <span className="bg-gradient-to-r from-foreground via-[#D4AF37] to-foreground bg-clip-text text-transparent">
+            ברוכים הבאים ל־INFINITY MOTAGEM SEVEN
           </span>
-          <br />
-          <span className="text-muted-foreground text-xs sm:text-sm md:text-base lg:text-lg xl:text-2xl 2xl:text-3xl">מתחילה כאן.</span>
         </h1>
-        <p className="text-muted-foreground text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg mb-3 sm:mb-4 md:mb-6 lg:mb-12 leading-relaxed max-w-lg animate-fade-in hidden md:block" style={{ animationDelay: "0.2s" }}>
-          עיצובים מודרניים המתאימים לגבר המזרחי. איכות גבוהה ופרטים מדויקים.
+        <p className="text-muted-foreground text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl mb-4 sm:mb-5 md:mb-6 lg:mb-8 leading-relaxed max-w-lg animate-fade-in" style={{ animationDelay: "0.2s" }}>
+          אופנת גברים יוקרתית. סטייל מודרני, איכות גבוהה ועיצובים מדויקים לכל הופעה.
         </p>
-        <div className="flex flex-wrap gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 justify-end animate-fade-in" style={{ animationDelay: "0.3s" }}>
+        <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-4 justify-end animate-fade-in" style={{ animationDelay: "0.3s" }}>
           <Button
             asChild
             variant="gold"
-            size="sm"
-            className="group uppercase tracking-wide shadow-xl hover:shadow-2xl text-[9px] sm:text-[10px] md:text-xs lg:text-sm xl:text-base h-7 sm:h-8 md:h-10 lg:h-12 px-2 sm:px-3 md:px-4"
+            size="default"
+            className="group font-semibold"
           >
             <Link href="/collections/new">
-              <ArrowRight size={10} className="group-hover:-translate-x-1 transition-transform rotate-180 sm:w-3 sm:h-3 md:w-4 md:h-4" />
+              <ArrowRight size={16} className="group-hover:-translate-x-1 transition-transform rotate-180" />
               <span className="hidden sm:inline">קנה חדש</span>
               <span className="sm:hidden">חדש</span>
             </Link>
@@ -40,8 +37,8 @@ export function Hero() {
           <Button
             asChild
             variant="outline"
-            size="sm"
-            className="uppercase tracking-wide border-2 shadow-lg hover:shadow-xl text-[9px] sm:text-[10px] md:text-xs lg:text-sm xl:text-base h-7 sm:h-8 md:h-10 lg:h-12 px-2 sm:px-3 md:px-4"
+            size="default"
+            className="font-semibold"
           >
             <Link href="/products">
               <span className="hidden sm:inline">כל המוצרים</span>
@@ -52,7 +49,7 @@ export function Hero() {
       </div>
       
       {/* Image - Right on mobile (RTL), Left on desktop */}
-      <div className="relative w-1/2 lg:w-1/2 bg-gradient-to-br from-secondary/30 via-accent/20 to-background flex items-center justify-center overflow-hidden min-h-[180px] sm:min-h-[250px] md:min-h-[400px] lg:min-h-[500px] xl:h-[700px]">
+      <div className="relative w-1/2 lg:w-1/2 bg-gradient-to-br from-secondary/30 via-accent/20 to-background flex items-center justify-center overflow-hidden min-h-[200px] sm:min-h-[280px] md:min-h-[400px] lg:min-h-[500px] xl:h-[700px]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(212,175,55,0.1),transparent_70%)]"></div>
         <div className="relative w-full h-full flex items-center justify-center">
           <img

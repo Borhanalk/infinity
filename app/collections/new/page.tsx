@@ -66,33 +66,33 @@ export default function NewCollectionsPage() {
   const newProducts = products.filter((p) => p.isNew);
 
   return (
-    <main className="min-h-screen bg-background text-foreground pt-20 sm:pt-24">
-      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 lg:py-16">
+    <main className="min-h-screen bg-background text-foreground pt-16 sm:pt-20 lg:pt-24 overflow-x-hidden">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8 lg:py-12 xl:py-16 overflow-hidden">
         {/* Header */}
-        <div className="mb-8 sm:mb-12 lg:mb-16">
-          <span className="text-[#D4AF37] text-xs sm:text-sm tracking-wider uppercase block mb-3 sm:mb-4 font-bold">
-            مجموعات جديدة
+        <div className="mb-6 sm:mb-8 lg:mb-12 xl:mb-16">
+          <span className="text-[#D4AF37] text-xs sm:text-sm tracking-wider uppercase block mb-2 sm:mb-3 lg:mb-4 font-bold">
+            חדש
           </span>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black mb-4 sm:mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-            وصولات جديدة هذا الموسم
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black mb-3 sm:mb-4 lg:mb-6 bg-gradient-to-r from-foreground via-[#D4AF37] to-foreground/70 bg-clip-text text-transparent">
+            הגעות חדשות לעונה
           </h1>
-          <p className="text-muted-foreground text-base sm:text-lg">اكتشف أحدث وصولاتنا</p>
+          <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">גלה את ההגעות החדשות שלנו</p>
         </div>
 
         {/* Products Grid */}
         {loading ? (
-          <div className="text-center py-12 sm:py-20 text-muted-foreground text-lg sm:text-xl">جاري التحميل...</div>
+          <div className="text-center py-12 sm:py-20 text-muted-foreground text-base sm:text-lg lg:text-xl">טוען...</div>
         ) : newProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 xl:gap-8">
             {newProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         ) : (
-          <Card className="text-center py-20">
+          <Card className="text-center py-12 sm:py-20">
             <CardContent>
-              <div className="text-6xl mb-6 opacity-30">✨</div>
-              <p className="text-xl text-muted-foreground">لا توجد منتجات جديدة متاحة</p>
+              <div className="text-5xl sm:text-6xl mb-4 sm:mb-6 opacity-30">✨</div>
+              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground">אין מוצרים חדשים זמינים</p>
             </CardContent>
           </Card>
         )}

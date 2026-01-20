@@ -38,12 +38,12 @@ export function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border shadow-sm">
-      <nav className="container mx-auto px-4 sm:px-6 h-20 sm:h-24 flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border shadow-sm overflow-hidden">
+      <nav className="container mx-auto px-3 sm:px-4 lg:px-6 h-16 sm:h-20 lg:h-24 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-2 group">
-          <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-gradient-to-br from-[#D4AF37] to-[#C9A961] rounded-full shadow-lg group-hover:scale-110 transition-transform"></span>
-          <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">הגבר האלגנטי</span>
+        <Link href="/" className="text-lg sm:text-xl lg:text-2xl font-black tracking-tight flex items-center gap-1.5 sm:gap-2 group">
+          <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 lg:w-3 lg:h-3 bg-gradient-to-br from-[#D4AF37] to-[#C9A961] rounded-full shadow-lg group-hover:scale-110 transition-transform"></span>
+          <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">INFINITY</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -69,15 +69,15 @@ export function Navbar() {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <Search size={20} />
+        <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3">
+          <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 sm:h-10 sm:w-10">
+            <Search size={18} className="sm:w-5 sm:h-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="rounded-full relative" asChild>
+          <Button variant="ghost" size="icon" className="rounded-full relative h-9 w-9 sm:h-10 sm:w-10" asChild>
             <Link href="/cart">
-              <ShoppingBag size={20} />
+              <ShoppingBag size={18} className="sm:w-5 sm:h-5" />
               {count > 0 && (
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-[10px]">
+                <Badge className="absolute -top-0.5 -right-0.5 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center text-[9px] sm:text-[10px]">
                   {count}
                 </Badge>
               )}
@@ -90,10 +90,10 @@ export function Navbar() {
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full relative">
-                      <User size={20} />
+                    <Button variant="ghost" size="icon" className="rounded-full relative h-9 w-9 sm:h-10 sm:w-10">
+                      <User size={18} className="sm:w-5 sm:h-5" />
                       {user.email && (
-                        <span className="absolute -bottom-1 -right-1 w-2 h-2 bg-green-500 rounded-full border-2 border-background"></span>
+                        <span className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full border-2 border-background"></span>
                       )}
                     </Button>
                   </DropdownMenuTrigger>
@@ -127,9 +127,9 @@ export function Navbar() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button variant="ghost" size="icon" className="rounded-full" asChild>
+                <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 sm:h-10 sm:w-10" asChild>
                   <Link href="/auth/login">
-                    <User size={20} />
+                    <User size={18} className="sm:w-5 sm:h-5" />
                   </Link>
                 </Button>
               )}
@@ -139,10 +139,10 @@ export function Navbar() {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="md:hidden h-9 w-9 sm:h-10 sm:w-10"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            <Menu size={20} />
+            <Menu size={18} className="sm:w-5 sm:h-5" />
           </Button>
         </div>
       </nav>

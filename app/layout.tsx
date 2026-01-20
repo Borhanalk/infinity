@@ -2,11 +2,10 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Providers } from "./providers";
 import { Navbar } from "./components/Navbar";
-import { FloatingCart } from "./components/FloatingCart";
 
 export const metadata: Metadata = {
-  title: "הגבר האלגנטי | חנות בגדי גברים",
-  description: "חנות בגדי גברים עם עיצוב יוקרתי ומחירים נוחים.",
+  title: "INFINITY MOTAGEM SEVEN | חנות בגדי גברים יוקרתית",
+  description: "ברוכים הבאים לחנות INFINITY MOTAGEM SEVEN - עיצובים מודרניים ואיכותיים לגבר המודרני.",
 };
 
 export default function RootLayout({
@@ -22,7 +21,6 @@ export default function RootLayout({
           <div className="min-h-screen">
             {children}
           </div>
-          <FloatingCart />
         </Providers>
       </body>
     </html>

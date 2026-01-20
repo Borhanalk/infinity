@@ -135,10 +135,10 @@ export function ProductCard({ product }: ProductCardProps) {
             variant="outline"
             size="sm"
             onClick={handleViewDetails}
-            className="w-full uppercase tracking-wide text-[10px] sm:text-xs h-8 sm:h-10"
+            className="w-full font-semibold text-xs sm:text-sm h-9 sm:h-10"
           >
-            <Eye size={12} className="ml-1 sm:w-3.5 sm:h-3.5" />
-            التفاصيل
+            <Eye size={14} className="ml-1.5 sm:w-4 sm:h-4" />
+            פרטים
           </Button>
         </div>
       </CardContent>

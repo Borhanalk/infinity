@@ -163,7 +163,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white text-gray-900" dir="rtl">
+    <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden" dir="rtl">
       {/* 1) AnnouncementBar (مناسبة/حملة) */}
       <AnnouncementBar />
 
@@ -175,17 +175,17 @@ export default function Home() {
 
       {/* 4) New Collections */}
       {!loading && newProducts.length > 0 && (
-        <section className="py-6 sm:py-12 lg:py-16 xl:py-24 bg-gradient-to-b from-background to-secondary/30">
+        <section className="py-6 sm:py-12 lg:py-16 xl:py-24 bg-gradient-to-b from-background to-secondary/30 overflow-hidden">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-4 sm:mb-8 lg:mb-12 xl:mb-16 gap-3 sm:gap-4">
               <Button
                 variant="ghost"
                 asChild
-                size="sm"
-                className="group text-muted-foreground hover:text-foreground font-bold text-xs sm:text-sm lg:text-base uppercase tracking-wide h-8 sm:h-10 lg:h-12"
+                size="default"
+                className="group text-muted-foreground hover:text-foreground font-semibold"
               >
                 <Link href="/collections/new">
-                  <ArrowRight size={14} className="group-hover:-translate-x-1 transition-transform rotate-180 sm:w-4 sm:h-4" />
+                  <ArrowRight size={16} className="group-hover:-translate-x-1 transition-transform rotate-180" />
                   <span>הצג הכל</span>
                 </Link>
               </Button>
@@ -201,7 +201,7 @@ export default function Home() {
       )}
 
       {/* 5) Categories */}
-      <section className="py-6 sm:py-12 lg:py-16 xl:py-24 bg-gradient-to-b from-secondary/20 via-background to-background border-t border-border">
+      <section className="py-6 sm:py-12 lg:py-16 xl:py-24 bg-gradient-to-b from-secondary/20 via-background to-background border-t border-border overflow-hidden">
         <div className="container mx-auto px-3 sm:px-4 lg:px-6 text-center">
           <h2 className="text-2xl sm:text-4xl lg:text-5xl xl:text-7xl font-black mb-4 sm:mb-8 lg:mb-12 xl:mb-16 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">קניות לפי קטגוריה</h2>
           <CategoryGrid />
