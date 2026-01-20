@@ -124,7 +124,7 @@ export default function EditCampaignPage() {
         setCampaign(campaignData);
         setProducts(productsData);
 
-        const ids = (campaignData.products || []).map((p) => p.productId);
+        const ids = (campaignData.products || []).map((p: CampaignProduct) => p.productId);
         setSelectedProducts(ids);
 
         setFormData({
