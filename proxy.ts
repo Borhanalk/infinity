@@ -93,6 +93,11 @@ export async function proxy(req: NextRequest) {
   return NextResponse.next();
 }
 
+// تصدير middleware لـ Next.js (proxy.ts يعمل كـ middleware)
+export async function middleware(req: NextRequest) {
+  return proxy(req);
+}
+
 export const config = {
   matcher: ["/admin/:path*", "/api/admin/:path*"],
 };
