@@ -52,15 +52,20 @@ export default function CategoriesPage() {
         method: "DELETE",
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        setToast({ msg: "فشل حذف الفئة", type: "error" });
+        const errorMsg = data?.error || data?.message || "فشل حذف الفئة";
+        setToast({ msg: errorMsg, type: "error" });
+        setDeletingId(null);
         return;
       }
 
       setToast({ msg: "تم حذف الفئة بنجاح", type: "success" });
       setCategories((prev) => prev.filter((c) => c.id !== id));
-    } catch {
-      setToast({ msg: "فشل حذف الفئة", type: "error" });
+    } catch (err: any) {
+      console.error("Error deleting category:", err);
+      setToast({ msg: "حدث خطأ أثناء حذف الفئة", type: "error" });
     } finally {
       setDeletingId(null);
     }

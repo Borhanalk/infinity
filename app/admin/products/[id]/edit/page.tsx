@@ -31,8 +31,16 @@ export default function EditProductPage() {
           fetch("/api/admin/companies"),
         ]);
 
-        if (!productRes.ok) throw new Error("فشل تحميل المنتج");
         const productData = await productRes.json();
+        
+        if (!productRes.ok) {
+          const errorMsg = productData?.error || productData?.message || "فشل تحميل المنتج";
+          setError(errorMsg);
+          setToast({ msg: errorMsg, type: "error" });
+          setLoading(false);
+          return;
+        }
+
         setProduct(productData);
 
         if (companiesRes.ok) {
@@ -41,8 +49,10 @@ export default function EditProductPage() {
         }
 
         setLoading(false);
-      } catch {
+      } catch (err: any) {
+        console.error("Error loading product:", err);
         setError("فشل تحميل البيانات");
+        setToast({ msg: "فشل تحميل البيانات", type: "error" });
         setLoading(false);
       }
     }
@@ -85,18 +95,29 @@ export default function EditProductPage() {
 
   async function deleteImage(imageId: string) {
     if (!confirm("هل تريد حذف هذه الصورة؟")) return;
-    const res = await fetch(`/api/admin/products/${id}/images/${imageId}`, {
-      method: "DELETE",
-    });
-    if (!res.ok) {
-      setToast({ msg: "فشل حذف الصورة", type: "error" });
-      return;
+    
+    try {
+      const res = await fetch(`/api/admin/products/${id}/images/${imageId}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        const errorMsg = data?.error || data?.message || "فشل حذف الصورة";
+        setToast({ msg: errorMsg, type: "error" });
+        return;
+      }
+
+      setProduct({
+        ...product,
+        images: product.images.filter((img: any) => img.id !== imageId),
+      });
+      setToast({ msg: "تم حذف الصورة", type: "success" });
+    } catch (err: any) {
+      console.error("Error deleting image:", err);
+      setToast({ msg: "حدث خطأ أثناء حذف الصورة", type: "error" });
     }
-    setProduct({
-      ...product,
-      images: product.images.filter((img: any) => img.id !== imageId),
-    });
-    setToast({ msg: "تم حذف الصورة", type: "success" });
   }
 
   async function save() {
@@ -135,17 +156,25 @@ export default function EditProductPage() {
           images: allImages,
         }),
       });
+
+      const data = await res.json();
+
       if (!res.ok) {
-        setError("فشل حفظ التغييرات");
-        setToast({ msg: "فشل الحفظ", type: "error" });
+        const errorMsg = data?.error || data?.message || "فشل حفظ التغييرات";
+        setError(errorMsg);
+        setToast({ msg: errorMsg, type: "error" });
+        setUploading(false);
         return;
       }
+
       setToast({ msg: "تم الحفظ بنجاح", type: "success" });
       setNewImages([]);
       setTimeout(() => router.push("/admin/products"), 1000);
-    } catch (err) {
-      setError("خطأ في الحفظ");
-      setToast({ msg: "خطأ في الحفظ", type: "error" });
+    } catch (err: any) {
+      console.error("Error saving product:", err);
+      const errorMsg = err?.message || "حدث خطأ أثناء الحفظ";
+      setError(errorMsg);
+      setToast({ msg: errorMsg, type: "error" });
     } finally {
       setUploading(false);
     }

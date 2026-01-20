@@ -107,10 +107,10 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    if (safeImages.length > 3) {
+    if (safeImages.length > 4) {
       console.error("Validation error: Too many images", safeImages.length);
       return NextResponse.json(
-        { error: "يمكنك إضافة 3 صور كحد أقصى", message: "يمكنك إضافة 3 صور كحد أقصى" },
+        { error: "يمكنك إضافة 4 صور كحد أقصى", message: "يمكنك إضافة 4 صور كحد أقصى" },
         { status: 400 }
       );
     }
@@ -126,8 +126,15 @@ export async function POST(req: NextRequest) {
       }
     }
     
-    const safeColors = Array.isArray(colors) ? colors : [];
-    const safeSizes = Array.isArray(sizes) ? sizes : [];
+    // تنظيف الألوان - إزالة الألوان الفارغة
+    const safeColors = Array.isArray(colors) 
+      ? colors.filter((c: any) => c && c.name && typeof c.name === "string" && c.name.trim() !== "" && c.hex && typeof c.hex === "string")
+      : [];
+    
+    // تنظيف المقاسات - إزالة المقاسات الفارغة
+    const safeSizes = Array.isArray(sizes)
+      ? sizes.filter((s: any) => s && s.size && typeof s.size === "string" && s.size.trim() !== "" && typeof s.quantity === "number" && s.quantity >= 0)
+      : [];
 
     const product = await prisma.product.create({
       data: {
@@ -215,18 +222,75 @@ export async function DELETE(req: NextRequest) {
       { status: 401 }
     );
   }
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get("id");
 
-  if (!id) {
-    return new NextResponse("Missing product id", { status: 400 });
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "معرف المنتج مطلوب" },
+        { status: 400 }
+      );
+    }
+
+    // التحقق من وجود المنتج
+    const product = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!product) {
+      return NextResponse.json(
+        { error: "المنتج غير موجود" },
+        { status: 404 }
+      );
+    }
+
+    // حذف العلاقات المرتبطة أولاً
+    // حذف NewArrival إذا كان موجوداً
+    await prisma.newArrival.deleteMany({
+      where: { productId: id },
+    });
+
+    // حذف CampaignProduct المرتبطة
+    await prisma.campaignProduct.deleteMany({
+      where: { productId: id },
+    });
+
+    // حذف الصور
+    await prisma.productImage.deleteMany({
+      where: { productId: id },
+    });
+
+    // حذف الألوان
+    await prisma.productColor.deleteMany({
+      where: { productId: id },
+    });
+
+    // حذف المقاسات
+    await prisma.productSize.deleteMany({
+      where: { productId: id },
+    });
+
+    // حذف المنتج نفسه
+    await prisma.product.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ 
+      success: true,
+      message: "تم حذف المنتج بنجاح"
+    });
+  } catch (error: any) {
+    console.error("DELETE /api/admin/products ERROR:", error);
+    return NextResponse.json(
+      { 
+        error: "فشل حذف المنتج",
+        message: error?.message || "حدث خطأ أثناء حذف المنتج"
+      },
+      { status: 500 }
+    );
   }
-
-  await prisma.product.delete({
-    where: { id },
-  });
-
-  return NextResponse.json({ success: true });
 }
 
 /* =================================================

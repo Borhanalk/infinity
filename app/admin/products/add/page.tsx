@@ -136,6 +136,13 @@ export default function AddProductPage() {
         return;
       }
 
+      // التحقق من السعر
+      if (!price || price <= 0 || isNaN(price)) {
+        setError("يرجى إدخال سعر صحيح أكبر من الصفر");
+        setLoading(false);
+        return;
+      }
+
       const validImages = imageFiles.filter((f): f is File => f !== null);
       if (validImages.length === 0) {
         setError("يرجى إضافة صورة واحدة على الأقل");
@@ -154,18 +161,46 @@ export default function AddProductPage() {
       let finalPrice = price;
       
       if (isOnSale) {
-        if (discountType === "percent" && discountPercent) {
+        if (discountType === "percent" && discountPercent && discountPercent > 0) {
           // تنزيل بنسبة مئوية
+          if (discountPercent > 100) {
+            setError("نسبة التنزيل لا يمكن أن تكون أكبر من 100%");
+            setLoading(false);
+            return;
+          }
           finalOriginalPrice = price;
           finalPrice = price * (1 - discountPercent / 100);
-        } else if (discountType === "amount" && discountAmount) {
+        } else if (discountType === "amount" && discountAmount && discountAmount > 0) {
           // تنزيل بمبلغ ثابت
+          if (discountAmount >= price) {
+            setError("مبلغ التنزيل لا يمكن أن يكون أكبر من أو يساوي السعر");
+            setLoading(false);
+            return;
+          }
           finalOriginalPrice = price;
-          finalPrice = Math.max(0, price - discountAmount);
+          finalPrice = price - discountAmount;
+        } else {
+          // إذا كان التنزيل مفعل لكن القيم غير صحيحة
+          setError("يرجى إدخال قيمة التنزيل بشكل صحيح");
+          setLoading(false);
+          return;
         }
       }
 
+      // التأكد من أن السعر النهائي أكبر من الصفر
+      if (finalPrice <= 0) {
+        setError("السعر النهائي بعد التنزيل يجب أن يكون أكبر من الصفر");
+        setLoading(false);
+        return;
+      }
+
       const imageUrls = await uploadImages();
+
+      // تنظيف الألوان - إزالة الألوان الفارغة
+      const validColors = colors.filter(c => c.name && c.name.trim() !== "" && c.hex);
+      
+      // تنظيف المقاسات - إزالة المقاسات الفارغة
+      const validSizes = sizes.filter(s => s.size && s.size.trim() !== "" && s.quantity >= 0);
 
       const res = await fetch("/api/admin/products", {
         method: "POST",
@@ -177,8 +212,8 @@ export default function AddProductPage() {
           categoryId,
           companyId,
           images: imageUrls,
-          colors,
-          sizes,
+          colors: validColors,
+          sizes: validSizes,
           isNew,
           isOnSale,
           discountPercent: discountType === "percent" ? discountPercent : null,

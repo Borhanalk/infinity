@@ -38,18 +38,23 @@ export default function UploadCategoryImage() {
         body: formData,
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        setError("فشل رفع الصورة");
-        setToast({ msg: "فشل رفع الصورة", type: "error" });
+        const errorMsg = data?.error || data?.message || "فشل رفع الصورة";
+        setError(errorMsg);
+        setToast({ msg: errorMsg, type: "error" });
         setLoading(false);
         return;
       }
 
       setToast({ msg: "تم رفع الصورة بنجاح", type: "success" });
       setTimeout(() => router.push("/admin/categories"), 1000);
-    } catch {
-      setError("حدث خطأ أثناء رفع الصورة");
-      setToast({ msg: "حدث خطأ أثناء رفع الصورة", type: "error" });
+    } catch (err: any) {
+      console.error("Error uploading image:", err);
+      const errorMsg = err?.message || "حدث خطأ أثناء رفع الصورة";
+      setError(errorMsg);
+      setToast({ msg: errorMsg, type: "error" });
       setLoading(false);
     }
   }

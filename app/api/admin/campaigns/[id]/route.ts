@@ -29,7 +29,7 @@ export async function GET(
 
     if (!campaign) {
       return NextResponse.json(
-        { error: "Campaign not found" },
+        { error: "الحملة غير موجودة" },
         { status: 404 }
       );
     }
@@ -84,7 +84,7 @@ export async function PUT(
 
     if (!existingCampaign) {
       return NextResponse.json(
-        { error: "Campaign not found" },
+        { error: "الحملة غير موجودة" },
         { status: 404 }
       );
     }
@@ -220,7 +220,7 @@ export async function DELETE(
 
     if (!campaign) {
       return NextResponse.json(
-        { error: "Campaign not found" },
+        { error: "الحملة غير موجودة" },
         { status: 404 }
       );
     }
@@ -258,10 +258,13 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting campaign:", error);
     return NextResponse.json(
-      { error: "Failed to delete campaign" },
+      { 
+        error: "فشل حذف الحملة",
+        message: error?.message || "حدث خطأ أثناء حذف الحملة"
+      },
       { status: 500 }
     );
   }

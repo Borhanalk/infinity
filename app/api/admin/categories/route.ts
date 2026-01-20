@@ -54,7 +54,10 @@ export async function POST(req: NextRequest) {
     const { name } = await req.json();
 
     if (!name || !name.trim()) {
-      return new NextResponse("Category name is required", { status: 400 });
+      return NextResponse.json(
+        { error: "اسم الفئة مطلوب" },
+        { status: 400 }
+      );
     }
 
     const category = await prisma.category.create({
@@ -62,8 +65,22 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(category);
-  } catch (error) {
+  } catch (error: any) {
     console.error("POST /categories ERROR:", error);
-    return new NextResponse("Failed to create category", { status: 500 });
+    
+    if (error.code === "P2002") {
+      return NextResponse.json(
+        { error: "اسم الفئة موجود بالفعل" },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { 
+        error: "فشل إنشاء الفئة",
+        message: error?.message || "حدث خطأ أثناء إنشاء الفئة"
+      },
+      { status: 500 }
+    );
   }
 }

@@ -24,7 +24,7 @@ export async function GET(
 
   if (!category) {
     return NextResponse.json(
-      { error: "Category not found" },
+      { error: "الفئة غير موجودة" },
       { status: 404 }
     );
   }
@@ -52,7 +52,7 @@ export async function PUT(
 
   if (!name || !name.trim()) {
     return NextResponse.json(
-      { error: "Name is required" },
+      { error: "اسم الفئة مطلوب" },
       { status: 400 }
     );
   }
@@ -90,7 +90,7 @@ export async function DELETE(
 
     if (relatedCount > 0) {
       return NextResponse.json(
-        { error: "Category has products. Delete or reassign them first." },
+        { error: `لا يمكن حذف الفئة لأنها مرتبطة بـ ${relatedCount} منتج. يرجى حذف أو إعادة تعيين المنتجات أولاً` },
         { status: 400 }
       );
     }
@@ -100,10 +100,13 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error("DELETE category ERROR:", error);
     return NextResponse.json(
-      { error: "Failed to delete category" },
+      { 
+        error: "فشل حذف الفئة",
+        message: error?.message || "حدث خطأ أثناء حذف الفئة"
+      },
       { status: 500 }
     );
   }

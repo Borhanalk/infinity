@@ -127,12 +127,21 @@ export default function AddCampaignPage() {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error();
+      const data = await res.json();
+
+      if (!res.ok) {
+        const errorMsg = data?.error || data?.message || "فشل إنشاء الخصم";
+        setToast({ msg: errorMsg, type: "error" });
+        setSaving(false);
+        return;
+      }
 
       setToast({ msg: "تم إنشاء الخصم بنجاح", type: "success" });
       setTimeout(() => router.push("/admin/campaigns"), 800);
-    } catch {
-      setToast({ msg: "فشل إنشاء الخصم", type: "error" });
+    } catch (err: any) {
+      console.error("Error creating campaign:", err);
+      const errorMsg = err?.message || "حدث خطأ أثناء إنشاء الخصم";
+      setToast({ msg: errorMsg, type: "error" });
     } finally {
       setSaving(false);
     }

@@ -57,13 +57,21 @@ export default function CampaignsPage() {
         method: "DELETE",
       });
 
-      if (!res.ok) throw new Error("فشل الحذف");
+      const data = await res.json();
+
+      if (!res.ok) {
+        const errorMsg = data?.error || data?.message || "فشل حذف الخصم";
+        setToast({ msg: errorMsg, type: "error" });
+        setDeletingId(null);
+        return;
+      }
 
       setToast({ msg: "تم حذف الخصم بنجاح", type: "success" });
       setDeletingId(null);
       fetchCampaigns();
-    } catch (err) {
-      setToast({ msg: "فشل حذف الخصم", type: "error" });
+    } catch (err: any) {
+      console.error("Error deleting campaign:", err);
+      setToast({ msg: "حدث خطأ أثناء حذف الخصم", type: "error" });
       setDeletingId(null);
     }
   }, [fetchCampaigns]);

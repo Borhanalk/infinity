@@ -104,11 +104,22 @@ export default function EditCampaignPage() {
           fetch("/api/products", { signal: controller.signal }),
         ]);
 
-        if (!campaignRes.ok) throw new Error("campaign");
-        if (!productsRes.ok) throw new Error("products");
+        const campaignData = await campaignRes.json();
+        const productsData = await productsRes.json();
 
-        const campaignData: Campaign = await campaignRes.json();
-        const productsData: Product[] = await productsRes.json();
+        if (!campaignRes.ok) {
+          const errorMsg = campaignData?.error || campaignData?.message || "فشل تحميل الحملة";
+          setToast({ msg: errorMsg, type: "error" });
+          setLoading(false);
+          return;
+        }
+
+        if (!productsRes.ok) {
+          const errorMsg = productsData?.error || productsData?.message || "فشل تحميل المنتجات";
+          setToast({ msg: errorMsg, type: "error" });
+          setLoading(false);
+          return;
+        }
 
         setCampaign(campaignData);
         setProducts(productsData);
@@ -183,12 +194,21 @@ export default function EditCampaignPage() {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error();
+      const data = await res.json();
+
+      if (!res.ok) {
+        const errorMsg = data?.error || data?.message || "فشل تحديث الخصم";
+        setToast({ msg: errorMsg, type: "error" });
+        setSaving(false);
+        return;
+      }
 
       setToast({ msg: "تم تحديث الخصم بنجاح", type: "success" });
       setTimeout(() => router.push("/admin/campaigns"), 800);
-    } catch {
-      setToast({ msg: "فشل تحديث الخصم", type: "error" });
+    } catch (err: any) {
+      console.error("Error updating campaign:", err);
+      const errorMsg = err?.message || "حدث خطأ أثناء تحديث الخصم";
+      setToast({ msg: errorMsg, type: "error" });
     } finally {
       setSaving(false);
     }

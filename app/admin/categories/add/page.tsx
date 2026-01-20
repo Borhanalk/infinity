@@ -7,23 +7,53 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Loader2, Save, ArrowLeft } from "lucide-react";
+import { Toast } from "../../components/Toast";
 
 export default function AddCategoryPage() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [toast, setToast] = useState<{ msg: string; type?: "success" | "error" } | null>(null);
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
-    await fetch("/api/admin/categories", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
-    });
+    try {
+      if (!name.trim()) {
+        setError("يرجى إدخال اسم الفئة");
+        setToast({ msg: "يرجى إدخال اسم الفئة", type: "error" });
+        setLoading(false);
+        return;
+      }
 
-    router.push("/admin/categories");
+      const res = await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim() }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        const errorMsg = data?.error || data?.message || "فشل إنشاء الفئة";
+        setError(errorMsg);
+        setToast({ msg: errorMsg, type: "error" });
+        setLoading(false);
+        return;
+      }
+
+      setToast({ msg: "تم إنشاء الفئة بنجاح", type: "success" });
+      setTimeout(() => router.push("/admin/categories"), 1000);
+    } catch (err: any) {
+      console.error("Error creating category:", err);
+      const errorMsg = err?.message || "حدث خطأ أثناء إنشاء الفئة";
+      setError(errorMsg);
+      setToast({ msg: errorMsg, type: "error" });
+      setLoading(false);
+    }
   }
 
   return (
@@ -39,8 +69,16 @@ export default function AddCategoryPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <Card className="border-destructive/50 bg-destructive/10">
+                <CardContent className="p-4">
+                  <p className="text-destructive font-bold text-sm">{error}</p>
+                </CardContent>
+              </Card>
+            )}
+
             <div>
-              <Label htmlFor="name" className="text-base font-bold mb-2 block">اسم الفئة</Label>
+              <Label htmlFor="name" className="text-base font-bold mb-2 block">اسم الفئة *</Label>
               <Input
                 id="name"
                 value={name}
@@ -85,6 +123,14 @@ export default function AddCategoryPage() {
           </form>
         </CardContent>
       </Card>
+
+      {toast && (
+        <Toast
+          message={toast.msg}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

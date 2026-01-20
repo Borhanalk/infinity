@@ -27,11 +27,19 @@ export default function EditCategoryPage() {
           cache: "no-store",
         });
 
-        if (!res.ok) throw new Error();
-
         const data = await res.json();
-        setName(data.name);
-      } catch {
+
+        if (!res.ok) {
+          const errorMsg = data?.error || data?.message || "فشل تحميل الفئة";
+          setError(errorMsg);
+          setToast({ msg: errorMsg, type: "error" });
+          setLoading(false);
+          return;
+        }
+
+        setName(data.name || "");
+      } catch (err: any) {
+        console.error("Error loading category:", err);
         setError("فشل تحميل الفئة");
         setToast({ msg: "فشل تحميل الفئة", type: "error" });
       } finally {
@@ -47,26 +55,38 @@ export default function EditCategoryPage() {
     setError("");
 
     try {
+      if (!name.trim()) {
+        setError("يرجى إدخال اسم الفئة");
+        setToast({ msg: "يرجى إدخال اسم الفئة", type: "error" });
+        setSaving(false);
+        return;
+      }
+
       const res = await fetch(`/api/admin/categories/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name: name.trim() }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        setError("فشل حفظ التغييرات");
-        setToast({ msg: "فشل حفظ التغييرات", type: "error" });
+        const errorMsg = data?.error || data?.message || "فشل حفظ التغييرات";
+        setError(errorMsg);
+        setToast({ msg: errorMsg, type: "error" });
         setSaving(false);
         return;
       }
 
       setToast({ msg: "تم حفظ التغييرات بنجاح", type: "success" });
       setTimeout(() => router.push("/admin/categories"), 1000);
-    } catch {
-      setError("حدث خطأ أثناء الحفظ");
-      setToast({ msg: "حدث خطأ أثناء الحفظ", type: "error" });
+    } catch (err: any) {
+      console.error("Error updating category:", err);
+      const errorMsg = err?.message || "حدث خطأ أثناء الحفظ";
+      setError(errorMsg);
+      setToast({ msg: errorMsg, type: "error" });
       setSaving(false);
     }
   }

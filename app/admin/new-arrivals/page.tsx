@@ -78,17 +78,20 @@ export default function NewArrivalsPage() {
         body: JSON.stringify({ productId: selectedProductId }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
-        setToast({ msg: data.error || "فشل إضافة المنتج", type: "error" });
+        const errorMsg = data?.error || data?.message || "فشل إضافة المنتج";
+        setToast({ msg: errorMsg, type: "error" });
         return;
       }
 
       setToast({ msg: "تم إضافة المنتج بنجاح", type: "success" });
       setSelectedProductId("");
       loadData();
-    } catch {
-      setToast({ msg: "فشل إضافة المنتج", type: "error" });
+    } catch (err: any) {
+      console.error("Error adding product:", err);
+      setToast({ msg: "حدث خطأ أثناء إضافة المنتج", type: "error" });
     }
   }, [selectedProductId, loadData]);
 
@@ -101,8 +104,11 @@ export default function NewArrivalsPage() {
         method: "DELETE",
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        setToast({ msg: "فشل حذف المنتج", type: "error" });
+        const errorMsg = data?.error || data?.message || "فشل حذف المنتج";
+        setToast({ msg: errorMsg, type: "error" });
         setDeletingId(null);
         return;
       }
@@ -110,8 +116,9 @@ export default function NewArrivalsPage() {
       setToast({ msg: "تم حذف المنتج بنجاح", type: "success" });
       setDeletingId(null);
       loadData();
-    } catch {
-      setToast({ msg: "فشل حذف المنتج", type: "error" });
+    } catch (err: any) {
+      console.error("Error deleting product:", err);
+      setToast({ msg: "حدث خطأ أثناء حذف المنتج", type: "error" });
       setDeletingId(null);
     }
   }, [loadData]);
@@ -129,7 +136,7 @@ export default function NewArrivalsPage() {
 
     // تبادل الترتيب
     try {
-      await Promise.all([
+      const [res1, res2] = await Promise.all([
         fetch(`/api/admin/new-arrivals/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -142,9 +149,19 @@ export default function NewArrivalsPage() {
         }),
       ]);
 
+      const data1 = await res1.json();
+      const data2 = await res2.json();
+
+      if (!res1.ok || !res2.ok) {
+        const errorMsg = data1?.error || data2?.error || data1?.message || data2?.message || "فشل تحديث الترتيب";
+        setToast({ msg: errorMsg, type: "error" });
+        return;
+      }
+
       loadData();
-    } catch {
-      setToast({ msg: "فشل تحديث الترتيب", type: "error" });
+    } catch (err: any) {
+      console.error("Error updating order:", err);
+      setToast({ msg: "حدث خطأ أثناء تحديث الترتيب", type: "error" });
     }
   }, [newArrivals, loadData]);
 

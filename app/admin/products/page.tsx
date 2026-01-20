@@ -54,15 +54,25 @@ export default function ProductsPage() {
     if (!confirm("هل تريد حذف هذا المنتج؟")) return;
     
     setDeletingId(id);
-    const res = await fetch(`/api/admin/products?id=${id}`, { method: "DELETE" });
-    if (!res.ok) {
-      setToast({ msg: "فشل حذف المنتج", type: "error" });
+    try {
+      const res = await fetch(`/api/admin/products?id=${id}`, { method: "DELETE" });
+      const data = await res.json();
+      
+      if (!res.ok) {
+        const errorMsg = data?.error || data?.message || "فشل حذف المنتج";
+        setToast({ msg: errorMsg, type: "error" });
+        setDeletingId(null);
+        return;
+      }
+      
+      setToast({ msg: data?.message || "تم حذف المنتج بنجاح", type: "success" });
       setDeletingId(null);
-      return;
+      await loadProducts();
+    } catch (error: any) {
+      console.error("Error deleting product:", error);
+      setToast({ msg: "حدث خطأ أثناء حذف المنتج", type: "error" });
+      setDeletingId(null);
     }
-    setToast({ msg: "تم حذف المنتج بنجاح", type: "success" });
-    setDeletingId(null);
-    await loadProducts();
   }, [loadProducts]);
 
   const bulkDelete = useCallback(async (months: number) => {

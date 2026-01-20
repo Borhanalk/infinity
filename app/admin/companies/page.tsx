@@ -48,9 +48,11 @@ export default function CompaniesPage() {
         method: "DELETE",
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
-        setToast({ msg: data.error || "فشل حذف الشركة", type: "error" });
+        const errorMsg = data?.error || data?.message || "فشل حذف الشركة";
+        setToast({ msg: errorMsg, type: "error" });
         setDeletingId(null);
         return;
       }
@@ -58,8 +60,9 @@ export default function CompaniesPage() {
       setToast({ msg: "تم حذف الشركة بنجاح", type: "success" });
       setDeletingId(null);
       loadCompanies();
-    } catch {
-      setToast({ msg: "فشل حذف الشركة", type: "error" });
+    } catch (err: any) {
+      console.error("Error deleting company:", err);
+      setToast({ msg: "حدث خطأ أثناء حذف الشركة", type: "error" });
       setDeletingId(null);
     }
   }, [loadCompanies]);

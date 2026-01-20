@@ -29,6 +29,14 @@ export async function GET(req: NextRequest) {
 
 // POST - إنشاء شركة جديدة
 export async function POST(req: NextRequest) {
+  // التحقق من المسؤول
+  const admin = await verifyAdminToken(req);
+  if (!admin) {
+    return NextResponse.json(
+      { error: "غير مصرح. يرجى تسجيل الدخول كمسؤول" },
+      { status: 401 }
+    );
+  }
   try {
     const { name, logoUrl } = await req.json();
 
