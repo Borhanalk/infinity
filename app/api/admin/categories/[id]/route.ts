@@ -1,13 +1,22 @@
 import {prisma} from "@/app/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { verifyAdminToken } from "@/app/lib/admin-auth";
 
 /* =========================
    GET: جلب Category واحد
 ========================= */
 export async function GET(
-  _req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // التحقق من المسؤول
+  const admin = await verifyAdminToken(req);
+  if (!admin) {
+    return NextResponse.json(
+      { error: "غير مصرح. يرجى تسجيل الدخول كمسؤول" },
+      { status: 401 }
+    );
+  }
   const { id } = await params;
   const category = await prisma.category.findUnique({
     where: { id: Number(id) },
@@ -27,9 +36,17 @@ export async function GET(
    PUT: تعديل الاسم
 ========================= */
 export async function PUT(
-  req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // التحقق من المسؤول
+  const admin = await verifyAdminToken(req);
+  if (!admin) {
+    return NextResponse.json(
+      { error: "غير مصرح. يرجى تسجيل الدخول كمسؤول" },
+      { status: 401 }
+    );
+  }
   const { id } = await params;
   const { name } = await req.json();
 
@@ -52,9 +69,17 @@ export async function PUT(
    DELETE: حذف Category
 ========================= */
 export async function DELETE(
-  _req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // التحقق من المسؤول
+  const admin = await verifyAdminToken(req);
+  if (!admin) {
+    return NextResponse.json(
+      { error: "غير مصرح. يرجى تسجيل الدخول كمسؤول" },
+      { status: 401 }
+    );
+  }
   try {
     const { id } = await params;
     const categoryId = Number(id);

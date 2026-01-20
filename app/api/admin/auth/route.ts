@@ -2,8 +2,35 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { verifyAdminToken } from "@/app/lib/admin-auth";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
+
+// التحقق من المسؤول (GET)
+export async function GET(req: NextRequest) {
+  try {
+    const admin = await verifyAdminToken(req);
+    if (!admin) {
+      return NextResponse.json(
+        { error: "غير مصرح" },
+        { status: 401 }
+      );
+    }
+    return NextResponse.json({
+      success: true,
+      admin: {
+        id: admin.id,
+        email: admin.email,
+      },
+    });
+  } catch (error: any) {
+    console.error("Error verifying admin:", error);
+    return NextResponse.json(
+      { error: "حدث خطأ أثناء التحقق" },
+      { status: 500 }
+    );
+  }
+}
 
 // تسجيل الدخول
 export async function POST(req: NextRequest) {
@@ -60,7 +87,7 @@ export async function POST(req: NextRequest) {
     console.error("Error in admin login:", error);
     const errorMessage = error?.message || "حدث خطأ أثناء تسجيل الدخول";
     return NextResponse.json(
-      { 
+      {
         error: "حدث خطأ أثناء تسجيل الدخول",
         details: process.env.NODE_ENV === "development" ? errorMessage : undefined
       },

@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
+import { verifyAdminToken } from "@/app/lib/admin-auth";
 
 // GET - جلب جميع البضاعة الجديدة
-export async function GET() {
+export async function GET(req: NextRequest) {
+  // التحقق من المسؤول
+  const admin = await verifyAdminToken(req);
+  if (!admin) {
+    return NextResponse.json(
+      { error: "غير مصرح. يرجى تسجيل الدخول كمسؤول" },
+      { status: 401 }
+    );
+  }
   try {
     const newArrivals = await prisma.newArrival.findMany({
       where: { isActive: true },

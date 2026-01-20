@@ -1,6 +1,8 @@
 "use client";
 
 import { useCart } from "../contexts/CartContext";
+import { useAuth } from "../contexts/AuthContext";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +12,21 @@ import { cn } from "@/lib/utils";
 
 export default function CartPage() {
   const { items, total, count, updateQty, removeItem, clear } = useCart();
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  const handleCheckout = () => {
+    // التحقق من تسجيل الدخول
+    if (!user && !authLoading) {
+      // إعادة التوجيه إلى صفحة تسجيل الدخول مع returnTo
+      router.push(`/auth/login?returnTo=${encodeURIComponent("/cart")}`);
+      return;
+    }
+
+    // هنا يمكنك إضافة منطق إتمام الطلب
+    // TODO: إضافة منطق إتمام الطلب
+    alert("سيتم إضافة منطق إتمام الطلب قريباً");
+  };
 
   if (items.length === 0) {
     return (
@@ -126,6 +143,7 @@ export default function CartPage() {
               variant="gold"
               size="lg"
               className="w-full uppercase tracking-wide shadow-xl hover:shadow-2xl text-sm sm:text-base"
+              onClick={handleCheckout}
             >
               <ShoppingBag size={18} className="ml-2" />
               إتمام الطلب

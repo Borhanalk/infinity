@@ -1,13 +1,22 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
+import { verifyAdminToken } from "@/app/lib/admin-auth";
 
 /* =========================
    GET SINGLE PRODUCT
 ========================= */
 export async function GET(
-  _req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // التحقق من المسؤول
+  const admin = await verifyAdminToken(req);
+  if (!admin) {
+    return NextResponse.json(
+      { error: "غير مصرح. يرجى تسجيل الدخول كمسؤول" },
+      { status: 401 }
+    );
+  }
   try {
     const { id } = await params;
     const product = await prisma.product.findUnique({
@@ -36,9 +45,17 @@ export async function GET(
    UPDATE PRODUCT (with images)
 ========================= */
 export async function PUT(
-  req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // التحقق من المسؤول
+  const admin = await verifyAdminToken(req);
+  if (!admin) {
+    return NextResponse.json(
+      { error: "غير مصرح. يرجى تسجيل الدخول كمسؤول" },
+      { status: 401 }
+    );
+  }
   try {
     const { id } = await params;
     const { name, price, description, images, companyId } = await req.json();

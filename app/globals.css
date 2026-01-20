@@ -199,33 +199,70 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Cursor pointer for all clickable elements */
+button,
+a,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+select,
+label[for],
+.cursor-pointer,
+[onclick],
+[onClick] {
+  cursor: pointer !important;
+}
+
+/* Ensure links always have pointer cursor */
+a:hover,
+a:focus,
+a:active {
+  cursor: pointer !important;
+}
+
+/* Cards and clickable containers */
+[class*="hover:"]:not(input):not(textarea):not(select),
+.card-clickable,
+[data-clickable="true"] {
+  cursor: pointer;
+}
+
 /* Mobile Responsive Improvements */
 @media (max-width: 640px) {
+
   /* Better touch targets */
-  button, a {
+  button,
+  a {
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   /* Prevent horizontal scroll */
   body {
     overflow-x: hidden;
   }
-  
+
   /* Better text readability on mobile */
-  p, span, div {
+  p,
+  span,
+  div {
     word-wrap: break-word;
     overflow-wrap: break-word;
   }
-  
+
   /* Improve form inputs on mobile */
-  input, textarea, select {
-    font-size: 16px; /* Prevents zoom on iOS */
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+    /* Prevents zoom on iOS */
   }
 }
 
 /* Tablet improvements */
 @media (min-width: 641px) and (max-width: 1024px) {
+
   /* Better spacing for tablets */
   .container {
     padding-left: 1.5rem;

@@ -43,13 +43,13 @@ export default function AddProductPage() {
           fetch("/api/admin/categories", { cache: "no-store" }),
           fetch("/api/admin/companies", { cache: "no-store" }),
         ]);
-        
+
         if (catRes.ok) {
           const catData = await catRes.json();
           setCategories(Array.isArray(catData) ? catData : []);
           if (catData.length > 0) setCategoryId(catData[0].id);
         }
-        
+
         if (compRes.ok) {
           const compData = await compRes.json();
           setCompanies(Array.isArray(compData) ? compData : []);
@@ -72,9 +72,9 @@ export default function AddProductPage() {
 
   function generateSizes(type: string) {
     let generated: string[] = [];
-    if (type === "shoes") generated = ["39","40","41","42","43","44","45"];
-    if (type === "pants") generated = ["28","30","32","34","36","38"];
-    if (type === "clothes") generated = ["S","M","L","XL"];
+    if (type === "shoes") generated = ["39", "40", "41", "42", "43", "44", "45"];
+    if (type === "pants") generated = ["28", "30", "32", "34", "36", "38"];
+    if (type === "clothes") generated = ["S", "M", "L", "XL"];
     setSizes(generated.map(s => ({ size: s, quantity: 0 })));
   }
 
@@ -84,28 +84,33 @@ export default function AddProductPage() {
 
   async function uploadImages() {
     if (imageFiles.length === 0) return [];
-    const urls: string[] = [];
-    for (const file of imageFiles) {
+    // رفع كل الصور بالتوازي لتحسين السرعة
+    const uploads = imageFiles.map((file) => {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("فشل رفع الصورة");
-      const data = await res.json();
-      urls.push(data.url);
-    }
-    return urls;
+      return fetch("/api/upload", { method: "POST", body: formData }).then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text().catch(() => "");
+          throw new Error(text || "فشل رفع الصورة");
+        }
+        const data = await res.json();
+        return data.url as string;
+      });
+    });
+
+    return await Promise.all(uploads);
   }
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (!files) return;
-    
+
     const fileArray = Array.from(files);
     if (fileArray.length > 3) {
       setToast({ msg: "يمكنك اختيار 3 صور كحد أقصى", type: "error" });
       return;
     }
-    
+
     setImageFiles(fileArray);
   }
 
@@ -163,7 +168,36 @@ export default function AddProductPage() {
         }),
       });
 
-      if (!res.ok) throw new Error("فشل حفظ المنتج");
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => "");
+
+        // تحويل رسائل الأخطاء من السيرفر إلى رسائل مفهومة
+        let friendly =
+          errorText ||
+          "فشل حفظ المنتج. يرجى مراجعة البيانات (الاسم، السعر، الفئة، الشركة، الصور).";
+
+        if (errorText.includes("Name is required")) friendly = "اسم المنتج مطلوب.";
+        else if (errorText.includes("Price must be a number"))
+          friendly = "السعر يجب أن يكون رقماً صحيحاً.";
+        else if (errorText.includes("Description is required"))
+          friendly = "الوصف مطلوب.";
+        else if (errorText.includes("categoryId must be a number"))
+          friendly = "حدث خطأ في الفئة المختارة. حاول اختيار الفئة مرة أخرى.";
+        else if (errorText.includes("companyId must be a number"))
+          friendly = "حدث خطأ في الشركة المختارة. حاول اختيار الشركة مرة أخرى.";
+        else if (errorText.includes("Category not found"))
+          friendly = "الفئة المحددة غير موجودة. اختر فئة صحيحة.";
+        else if (errorText.includes("Company not found"))
+          friendly = "الشركة المحددة غير موجودة. اختر شركة صحيحة.";
+        else if (errorText.includes("يجب إضافة صورة واحدة على الأقل"))
+          friendly = "يجب إضافة صورة واحدة على الأقل.";
+        else if (errorText.includes("يمكنك إضافة 3 صور كحد أقصى"))
+          friendly = "يمكنك إضافة 3 صور كحد أقصى.";
+
+        setError(friendly);
+        setToast({ msg: friendly, type: "error" });
+        return;
+      }
 
       setToast({ msg: "تم حفظ المنتج", type: "success" });
       setName("");
@@ -176,9 +210,14 @@ export default function AddProductPage() {
       setIsOnSale(false);
       setDiscountPercent(null);
       setOriginalPrice(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setToast({ msg: "خطأ في حفظ المنتج", type: "error" });
+      const msg =
+        err?.message === "فشل رفع الصورة"
+          ? "فشل رفع واحدة من الصور، تأكد من الاتصال وحجم الصورة وحاول مرة أخرى."
+          : err?.message || "حدث خطأ غير متوقع أثناء حفظ المنتج.";
+      setError(msg);
+      setToast({ msg, type: "error" });
     } finally {
       setLoading(false);
     }

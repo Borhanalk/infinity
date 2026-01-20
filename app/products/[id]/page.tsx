@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useCart } from "../../contexts/CartContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -40,6 +41,7 @@ export default function ProductDetailPage() {
   const router = useRouter();
   const id = params?.id as string;
   const { addItem } = useCart();
+  const { user, loading: authLoading } = useAuth();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -136,7 +138,15 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
-    
+
+    // التحقق من تسجيل الدخول
+    if (!user && !authLoading) {
+      // إعادة التوجيه إلى صفحة تسجيل الدخول مع returnTo
+      const currentUrl = `/products/${id}`;
+      router.push(`/auth/login?returnTo=${encodeURIComponent(currentUrl)}`);
+      return;
+    }
+
     addItem({
       id: product.id,
       name: product.name,
@@ -172,10 +182,10 @@ export default function ProductDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 mb-16">
           {/* IMAGES SECTION */}
           <div className="sticky top-24">
-            {/* Main Image */}
+            {/* Main Image: أصغر على الديسكتوب، واضحة على الجوال بدون أن تكون ضخمة */}
             {displayImage ? (
               <Card className="mb-6 overflow-hidden border-2 border-border/50 shadow-2xl rounded-3xl group">
-                <div className="relative aspect-square bg-gradient-to-br from-muted/50 to-muted overflow-hidden">
+                <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] lg:aspect-[3/4] bg-gradient-to-br from-muted/50 to-muted overflow-hidden">
                   <img
                     src={displayImage}
                     alt={product.name}
@@ -254,7 +264,7 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
               )}
-              
+
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                 {product.name}
               </h1>
@@ -343,8 +353,8 @@ export default function ProductDetailPage() {
                       disabled={s.quantity === 0}
                       className={cn(
                         "min-w-[90px] h-14 text-base font-black transition-all duration-300",
-                        selectedSize === s.size 
-                          ? "bg-[#D4AF37] hover:bg-[#C9A961] text-black border-2 border-[#D4AF37] shadow-lg scale-105" 
+                        selectedSize === s.size
+                          ? "bg-[#D4AF37] hover:bg-[#C9A961] text-black border-2 border-[#D4AF37] shadow-lg scale-105"
                           : "hover:border-[#D4AF37]/50",
                         s.quantity === 0 && "opacity-40 cursor-not-allowed line-through"
                       )}
@@ -361,8 +371,8 @@ export default function ProductDetailPage() {
                     "mt-3 text-sm font-bold",
                     selectedSizeData.quantity > 0 ? "text-green-600" : "text-destructive"
                   )}>
-                    {selectedSizeData.quantity > 0 
-                      ? `✓ متوفر (${selectedSizeData.quantity} قطعة)` 
+                    {selectedSizeData.quantity > 0
+                      ? `✓ متوفر (${selectedSizeData.quantity} قطعة)`
                       : "✗ غير متوفر"}
                   </p>
                 )}

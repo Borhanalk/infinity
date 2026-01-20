@@ -1,11 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
+import { verifyAdminToken } from "@/app/lib/admin-auth";
 
 /* =================================================
    CREATE PRODUCT
    POST /api/admin/products
 ================================================= */
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  // التحقق من المسؤول
+  const admin = await verifyAdminToken(req);
+  if (!admin) {
+    return NextResponse.json(
+      { error: "غير مصرح. يرجى تسجيل الدخول كمسؤول" },
+      { status: 401 }
+    );
+  }
   try {
     const body = await req.json();
 
@@ -113,7 +122,15 @@ export async function POST(req: Request) {
    DELETE SINGLE PRODUCT
    DELETE /api/admin/products?id=PRODUCT_ID
 ================================================= */
-export async function DELETE(req: Request) {
+export async function DELETE(req: NextRequest) {
+  // التحقق من المسؤول
+  const admin = await verifyAdminToken(req);
+  if (!admin) {
+    return NextResponse.json(
+      { error: "غير مصرح. يرجى تسجيل الدخول كمسؤول" },
+      { status: 401 }
+    );
+  }
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
 
@@ -133,7 +150,15 @@ export async function DELETE(req: Request) {
    PUT /api/admin/products
    body: { months: 3 | 6 }
 ================================================= */
-export async function PUT(req: Request) {
+export async function PUT(req: NextRequest) {
+  // التحقق من المسؤول
+  const admin = await verifyAdminToken(req);
+  if (!admin) {
+    return NextResponse.json(
+      { error: "غير مصرح. يرجى تسجيل الدخول كمسؤول" },
+      { status: 401 }
+    );
+  }
   const { months } = await req.json();
 
   if (!months || typeof months !== "number") {
