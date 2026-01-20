@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { useCart } from "../contexts/CartContext";
+import { ProductCard } from "../components/ProductCard";
 
 type Product = {
   id: string;
@@ -10,16 +9,36 @@ type Product = {
   price: number;
   originalPrice?: number | null;
   description: string;
-  images: { url: string }[];
+  images: Array<{ id: string; url: string }>;
   isOnSale?: boolean;
   discountPercent?: number | null;
+  isNew?: boolean;
+  categoryId?: number;
+  category?: {
+    id: number;
+    name: string;
+  };
+  company?: {
+    id: number;
+    name: string;
+    logoUrl?: string | null;
+  } | null;
+  colors?: Array<{
+    id: string;
+    name: string;
+    hex: string;
+  }>;
+  sizes?: Array<{
+    id: string;
+    size: string;
+    quantity: number;
+  }>;
 };
 
 export default function SalesPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
-  const { addItem } = useCart();
 
   useEffect(() => {
     async function loadProducts() {
@@ -133,62 +152,12 @@ export default function SalesPage() {
             <div className="text-center py-12 sm:py-20 text-gray-400 text-base sm:text-lg font-medium">טוען...</div>
           )}
 
-          {/* Products Grid */}
+          {/* Products Grid - 3 columns on mobile, same as homepage */}
           {!loading && filteredProducts.length > 0 && (
-            <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6">
-              {filteredProducts.map((p) => {
-                const img = p.images?.[0]?.url;
-                const originalPrice = p.originalPrice || p.price;
-                const discount = p.discountPercent || 0;
-
-                return (
-                  <Link
-                    key={p.id}
-                    href={`/products/${p.id}`}
-                    className="art-card group cursor-pointer reveal-text"
-                  >
-                    <div className="relative overflow-hidden aspect-[3/4] mb-4">
-                      {img ? (
-                        <img
-                          src={img}
-                          alt={p.name}
-                          className="product-img w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-[#141414] to-[#0a0a0a] flex items-center justify-center border border-[#2a2a2a]">
-                          <span className="text-5xl opacity-30">⚜</span>
-                        </div>
-                      )}
-                      <div className="absolute top-4 left-4 bg-red-600 text-white text-xs px-3 py-1 tracking-wider uppercase font-semibold">
-                        -{discount}%
-                      </div>
-                      <div className="absolute bottom-0 left-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 bg-black/80 backdrop-blur-sm border-t border-[#2a2a2a]">
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            addItem({
-                              id: p.id,
-                              name: p.name,
-                              price: p.price,
-                              image: img,
-                            });
-                          }}
-                          className="w-full text-white text-xs tracking-[0.2em] uppercase border border-white/20 py-3 hover:bg-white hover:text-black transition font-semibold"
-                        >
-                          הוסף לעגלה
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="text-base mb-2 serif-font font-light">{p.name}</h3>
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-500 line-through text-sm">${originalPrice}</span>
-                        <span className="text-[#C9A961] serif-font italic text-lg">${p.price}</span>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
+            <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4 lg:gap-6 xl:gap-8">
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
             </div>
           )}
 
