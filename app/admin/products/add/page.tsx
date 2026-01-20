@@ -15,14 +15,15 @@ type Category = { id: number; name: string };
 type Company = { id: number; name: string };
 
 export default function AddProductPage() {
-  const [name, setName] = useState("");
   const [price, setPrice] = useState<number>(0);
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState<number | null>(null);
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imageFiles, setImageFiles] = useState<(File | null)[]>([null, null, null, null]); // 4 صور
   const [isNew, setIsNew] = useState(false);
   const [isOnSale, setIsOnSale] = useState(false);
+  const [discountType, setDiscountType] = useState<"percent" | "amount">("percent"); // نوع التنزيل
   const [discountPercent, setDiscountPercent] = useState<number | null>(null);
+  const [discountAmount, setDiscountAmount] = useState<number | null>(null); // مبلغ التنزيل الثابت
   const [originalPrice, setOriginalPrice] = useState<number | null>(null);
 
   const [colors, setColors] = useState<Color[]>([{ name: "", hex: "#000000" }]);
@@ -83,9 +84,11 @@ export default function AddProductPage() {
   }
 
   async function uploadImages() {
-    if (imageFiles.length === 0) return [];
+    const filesToUpload = imageFiles.filter((f): f is File => f !== null);
+    if (filesToUpload.length === 0) return [];
+    
     // رفع كل الصور بالتوازي لتحسين السرعة
-    const uploads = imageFiles.map((file) => {
+    const uploads = filesToUpload.map((file) => {
       const formData = new FormData();
       formData.append("file", file);
       return fetch("/api/upload", { method: "POST", body: formData }).then(async (res) => {
@@ -101,21 +104,19 @@ export default function AddProductPage() {
     return await Promise.all(uploads);
   }
 
-  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (!files) return;
+  function handleImageChange(index: number, e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    const fileArray = Array.from(files);
-    if (fileArray.length > 3) {
-      setToast({ msg: "يمكنك اختيار 3 صور كحد أقصى", type: "error" });
-      return;
-    }
-
-    setImageFiles(fileArray);
+    const newFiles = [...imageFiles];
+    newFiles[index] = file;
+    setImageFiles(newFiles);
   }
 
   function removeImage(index: number) {
-    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    const newFiles = [...imageFiles];
+    newFiles[index] = null;
+    setImageFiles(newFiles);
   }
 
   async function saveProduct() {
@@ -135,16 +136,33 @@ export default function AddProductPage() {
         return;
       }
 
-      if (imageFiles.length === 0) {
+      const validImages = imageFiles.filter((f): f is File => f !== null);
+      if (validImages.length === 0) {
         setError("يرجى إضافة صورة واحدة على الأقل");
         setLoading(false);
         return;
       }
 
-      if (imageFiles.length > 3) {
-        setError("يمكنك إضافة 3 صور كحد أقصى");
+      if (validImages.length > 4) {
+        setError("يمكنك إضافة 4 صور كحد أقصى");
         setLoading(false);
         return;
+      }
+
+      // حساب السعر الأصلي والسعر بعد التنزيل
+      let finalOriginalPrice = originalPrice;
+      let finalPrice = price;
+      
+      if (isOnSale) {
+        if (discountType === "percent" && discountPercent) {
+          // تنزيل بنسبة مئوية
+          finalOriginalPrice = price;
+          finalPrice = price * (1 - discountPercent / 100);
+        } else if (discountType === "amount" && discountAmount) {
+          // تنزيل بمبلغ ثابت
+          finalOriginalPrice = price;
+          finalPrice = Math.max(0, price - discountAmount);
+        }
       }
 
       const imageUrls = await uploadImages();
@@ -153,8 +171,8 @@ export default function AddProductPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
-          price,
+          name: "", // بدون اسم
+          price: finalPrice,
           description,
           categoryId,
           companyId,
@@ -163,52 +181,49 @@ export default function AddProductPage() {
           sizes,
           isNew,
           isOnSale,
-          discountPercent,
-          originalPrice,
+          discountPercent: discountType === "percent" ? discountPercent : null,
+          discountAmount: discountType === "amount" ? discountAmount : null,
+          originalPrice: finalOriginalPrice,
         }),
       });
 
       if (!res.ok) {
-        const errorText = await res.text().catch(() => "");
+        // محاولة قراءة JSON أولاً، ثم النص كبديل
+        let errorData: any = {};
+        try {
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            errorData = await res.json();
+          } else {
+            const errorText = await res.text();
+            errorData = { message: errorText, error: errorText };
+          }
+        } catch (parseError) {
+          console.error("Failed to parse error response:", parseError);
+          errorData = { message: "فشل حفظ المنتج", error: "فشل حفظ المنتج" };
+        }
 
-        // تحويل رسائل الأخطاء من السيرفر إلى رسائل مفهومة
-        let friendly =
-          errorText ||
+        // استخدام الرسالة من السيرفر إذا كانت متوفرة
+        const friendly = errorData.message || errorData.error || 
           "فشل حفظ المنتج. يرجى مراجعة البيانات (الاسم، السعر، الفئة، الشركة، الصور).";
 
-        if (errorText.includes("Name is required")) friendly = "اسم المنتج مطلوب.";
-        else if (errorText.includes("Price must be a number"))
-          friendly = "السعر يجب أن يكون رقماً صحيحاً.";
-        else if (errorText.includes("Description is required"))
-          friendly = "الوصف مطلوب.";
-        else if (errorText.includes("categoryId must be a number"))
-          friendly = "حدث خطأ في الفئة المختارة. حاول اختيار الفئة مرة أخرى.";
-        else if (errorText.includes("companyId must be a number"))
-          friendly = "حدث خطأ في الشركة المختارة. حاول اختيار الشركة مرة أخرى.";
-        else if (errorText.includes("Category not found"))
-          friendly = "الفئة المحددة غير موجودة. اختر فئة صحيحة.";
-        else if (errorText.includes("Company not found"))
-          friendly = "الشركة المحددة غير موجودة. اختر شركة صحيحة.";
-        else if (errorText.includes("يجب إضافة صورة واحدة على الأقل"))
-          friendly = "يجب إضافة صورة واحدة على الأقل.";
-        else if (errorText.includes("يمكنك إضافة 3 صور كحد أقصى"))
-          friendly = "يمكنك إضافة 3 صور كحد أقصى.";
-
+        console.error("Product save error:", errorData);
         setError(friendly);
         setToast({ msg: friendly, type: "error" });
         return;
       }
 
       setToast({ msg: "تم حفظ المنتج", type: "success" });
-      setName("");
       setPrice(0);
       setDescription("");
-      setImageFiles([]);
+      setImageFiles([null, null, null, null]);
       setColors([{ name: "", hex: "#000000" }]);
       setSizes([]);
       setIsNew(false);
       setIsOnSale(false);
+      setDiscountType("percent");
       setDiscountPercent(null);
+      setDiscountAmount(null);
       setOriginalPrice(null);
     } catch (err: any) {
       console.error(err);
@@ -237,24 +252,16 @@ export default function AddProductPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <Label htmlFor="name" className="text-base font-bold mb-2 block">اسم المنتج</Label>
-            <Input
-              id="name"
-              placeholder="اسم المنتج"
-              className="h-14 text-base rounded-xl"
-              value={name}
-              onChange={e => setName(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="category" className="text-base font-bold mb-2 block">الفئة</Label>
+            <Label htmlFor="category" className="text-base font-bold mb-2 block">
+              الفئة <span className="text-destructive">*</span>
+            </Label>
             <select
               id="category"
               className="h-14 w-full px-4 bg-background border border-input rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-ring"
               value={categoryId ?? ""}
               onChange={e => setCategoryId(Number(e.target.value))}
               disabled={!categories.length}
+              required
             >
               <option value="" disabled>
                 {categories.length ? "اختر الفئة" : "جاري تحميل الفئات..."}
@@ -268,7 +275,9 @@ export default function AddProductPage() {
           </div>
 
           <div>
-            <Label htmlFor="company" className="text-base font-bold mb-2 block">الشركة *</Label>
+            <Label htmlFor="company" className="text-base font-bold mb-2 block">
+              الشركة <span className="text-destructive">*</span>
+            </Label>
             <select
               id="company"
               className="h-14 w-full px-4 bg-background border border-input rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-ring"
@@ -289,7 +298,9 @@ export default function AddProductPage() {
           </div>
 
           <div>
-            <Label htmlFor="price" className="text-base font-bold mb-2 block">السعر</Label>
+            <Label htmlFor="price" className="text-base font-bold mb-2 block">
+              السعر <span className="text-destructive">*</span>
+            </Label>
             <Input
               id="price"
               placeholder="السعر"
@@ -297,14 +308,17 @@ export default function AddProductPage() {
               className="h-14 text-base rounded-xl"
               value={price}
               onChange={e => setPrice(Number(e.target.value))}
+              required
+              min="0"
+              step="0.01"
             />
           </div>
 
           <div>
-            <Label htmlFor="description" className="text-base font-bold mb-2 block">الوصف</Label>
+            <Label htmlFor="description" className="text-base font-bold mb-2 block">الوصف (اختياري)</Label>
             <textarea
               id="description"
-              placeholder="الوصف"
+              placeholder="الوصف (اختياري)"
               className="w-full min-h-[120px] px-4 py-3 bg-background border border-input rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-ring resize-none"
               value={description}
               onChange={e => setDescription(e.target.value)}
@@ -334,31 +348,79 @@ export default function AddProductPage() {
           </div>
 
           {isOnSale && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+            <div className="space-y-4 pt-4">
               <div>
-                <Label htmlFor="originalPrice" className="text-sm font-bold mb-2 block">السعر الأصلي</Label>
-                <Input
-                  id="originalPrice"
-                  type="number"
-                  placeholder="السعر الأصلي"
-                  className="h-12 rounded-xl"
-                  value={originalPrice || ""}
-                  onChange={e => setOriginalPrice(e.target.value ? Number(e.target.value) : null)}
-                />
+                <Label className="text-sm font-bold mb-2 block">نوع التنزيل</Label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="discountType"
+                      value="percent"
+                      checked={discountType === "percent"}
+                      onChange={() => {
+                        setDiscountType("percent");
+                        setDiscountAmount(null);
+                      }}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm font-bold">نسبة مئوية (%)</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="discountType"
+                      value="amount"
+                      checked={discountType === "amount"}
+                      onChange={() => {
+                        setDiscountType("amount");
+                        setDiscountPercent(null);
+                      }}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm font-bold">مبلغ ثابت (₪)</span>
+                  </label>
+                </div>
               </div>
-              <div>
-                <Label htmlFor="discountPercent" className="text-sm font-bold mb-2 block">نسبة الخصم %</Label>
-                <Input
-                  id="discountPercent"
-                  type="number"
-                  placeholder="نسبة الخصم"
-                  className="h-12 rounded-xl"
-                  min="0"
-                  max="100"
-                  value={discountPercent || ""}
-                  onChange={e => setDiscountPercent(e.target.value ? Number(e.target.value) : null)}
-                />
-              </div>
+              
+              {discountType === "percent" ? (
+                <div>
+                  <Label htmlFor="discountPercent" className="text-sm font-bold mb-2 block">نسبة الخصم %</Label>
+                  <Input
+                    id="discountPercent"
+                    type="number"
+                    placeholder="نسبة الخصم (0-100)"
+                    className="h-12 rounded-xl"
+                    min="0"
+                    max="100"
+                    value={discountPercent || ""}
+                    onChange={e => setDiscountPercent(e.target.value ? Number(e.target.value) : null)}
+                  />
+                  {discountPercent && price > 0 && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      السعر بعد التنزيل: {(price * (1 - (discountPercent || 0) / 100)).toFixed(2)} ₪
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <Label htmlFor="discountAmount" className="text-sm font-bold mb-2 block">مبلغ التنزيل (₪)</Label>
+                  <Input
+                    id="discountAmount"
+                    type="number"
+                    placeholder="مبلغ التنزيل"
+                    className="h-12 rounded-xl"
+                    min="0"
+                    value={discountAmount || ""}
+                    onChange={e => setDiscountAmount(e.target.value ? Number(e.target.value) : null)}
+                  />
+                  {discountAmount && price > 0 && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      السعر بعد التنزيل: {Math.max(0, price - discountAmount).toFixed(2)} ₪
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </CardContent>
@@ -367,57 +429,71 @@ export default function AddProductPage() {
       {/* IMAGES */}
       <Card className="border-border">
         <CardHeader>
-          <CardTitle className="text-2xl font-black">الصور</CardTitle>
-          <p className="text-sm text-muted-foreground mt-2">صورة واحدة إجبارية، صورتان اختياريتان (حد أقصى 3 صور)</p>
+          <CardTitle className="text-2xl font-black">
+            الصور <span className="text-destructive">*</span>
+          </CardTitle>
+          <p className="text-sm text-muted-foreground mt-2">صورة واحدة إجبارية، 3 صور اختيارية (حد أقصى 4 صور)</p>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* معاينة الصور المختارة */}
-          {imageFiles.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {imageFiles.map((file, index) => (
-                <div key={index} className="relative group">
-                  <img
-                    src={URL.createObjectURL(file)}
-                    alt={`Preview ${index + 1}`}
-                    className="w-full h-40 object-cover rounded-xl border-2 border-border"
-                  />
-                  <div className="absolute top-2 right-2">
-                    {index === 0 ? (
-                      <span className="bg-green-500 text-white text-xs font-black px-2 py-1 rounded">إجبارية</span>
-                    ) : (
-                      <span className="bg-blue-500 text-white text-xs font-black px-2 py-1 rounded">اختيارية</span>
-                    )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[0, 1, 2, 3].map((index) => (
+              <div key={index} className="space-y-2">
+                <Label className="text-xs font-bold text-muted-foreground">
+                  {index === 0 ? (
+                    <>
+                      صورة 1 <span className="text-destructive">*</span> (إجبارية)
+                    </>
+                  ) : (
+                    `صورة ${index + 1} (اختيارية)`
+                  )}
+                </Label>
+                {imageFiles[index] ? (
+                  <div className="relative group">
+                    <img
+                      src={URL.createObjectURL(imageFiles[index]!)}
+                      alt={`Preview ${index + 1}`}
+                      className="w-full h-40 object-cover rounded-xl border-2 border-border"
+                    />
+                    <div className="absolute top-2 right-2">
+                      {index === 0 ? (
+                        <span className="bg-green-500 text-white text-xs font-black px-2 py-1 rounded">إجبارية</span>
+                      ) : (
+                        <span className="bg-blue-500 text-white text-xs font-black px-2 py-1 rounded">اختيارية</span>
+                      )}
+                    </div>
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => removeImage(index)}
+                      className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"
+                      disabled={index === 0 && imageFiles.filter(f => f !== null).length === 1}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
                   </div>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => removeImage(index)}
-                    className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"
-                    disabled={index === 0 && imageFiles.length === 1}
-                  >
-                    <Trash2 size={16} />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Input للصور */}
-          <div>
-            <Input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              className="h-14 text-base rounded-xl cursor-pointer"
-              disabled={imageFiles.length >= 3}
-            />
-            <p className="text-xs text-muted-foreground mt-2">
-              {imageFiles.length === 0 && "يرجى اختيار صورة واحدة على الأقل"}
-              {imageFiles.length > 0 && imageFiles.length < 3 && `تم اختيار ${imageFiles.length} من 3 صور`}
-              {imageFiles.length === 3 && "تم الوصول للحد الأقصى (3 صور)"}
-            </p>
+                ) : (
+                  <div className="border-2 border-dashed border-border rounded-xl h-40 flex items-center justify-center bg-muted/30">
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-2">لا توجد صورة</p>
+                    </div>
+                  </div>
+                )}
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageChange(index, e)}
+                  className="h-10 text-sm rounded-xl cursor-pointer"
+                />
+              </div>
+            ))}
           </div>
+          <p className="text-xs text-muted-foreground">
+            {imageFiles.filter(f => f !== null).length === 0 && "يرجى اختيار صورة واحدة على الأقل"}
+            {imageFiles.filter(f => f !== null).length > 0 && imageFiles.filter(f => f !== null).length < 4 && 
+              `تم اختيار ${imageFiles.filter(f => f !== null).length} من 4 صور`}
+            {imageFiles.filter(f => f !== null).length === 4 && "تم الوصول للحد الأقصى (4 صور)"}
+          </p>
         </CardContent>
       </Card>
 

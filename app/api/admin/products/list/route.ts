@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { verifyAdminToken } from "@/app/lib/admin-auth";
 
-type GroupedProducts = Record<string, Array<{
+type Product = {
   id: string;
   name: string;
   price: number;
   createdAt: string;
-}>>;
+  images?: Array<{ url: string }>;
+  company?: { id: number; name: string; logoUrl?: string | null } | null;
+  category?: { id: number; name: string } | null;
+};
 
 export async function GET(req: NextRequest) {
   // التحقق من المسؤول
@@ -34,30 +37,56 @@ export async function GET(req: NextRequest) {
         },
         company: {
           select: {
+            id: true,
             name: true,
             logoUrl: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
           },
         },
       },
     });
 
-    const groups: GroupedProducts = {};
+    // تجميع حسب الشركة ثم حسب الفئة
+    type CompanyGroup = {
+      companyId: number;
+      companyName: string;
+      companyLogoUrl: string | null;
+      categories: Record<string, Product[]>;
+    };
+
+    const companyGroups: Record<string, CompanyGroup> = {};
 
     for (const p of products) {
-      const date = new Date(p.createdAt);
-      const monthKey = date.toLocaleString("en-US", {
-        month: "long",
-        year: "numeric",
-      });
+      const companyName = p.company?.name || "بدون شركة";
+      const companyId = p.company?.id || 0;
+      const companyLogoUrl = p.company?.logoUrl || null;
+      const categoryName = p.category?.name || "بدون فئة";
 
-      if (!groups[monthKey]) groups[monthKey] = [];
-      groups[monthKey].push({
+      if (!companyGroups[companyName]) {
+        companyGroups[companyName] = {
+          companyId,
+          companyName,
+          companyLogoUrl,
+          categories: {},
+        };
+      }
+
+      if (!companyGroups[companyName].categories[categoryName]) {
+        companyGroups[companyName].categories[categoryName] = [];
+      }
+
+      companyGroups[companyName].categories[categoryName].push({
         ...p,
         createdAt: p.createdAt.toISOString(),
       });
     }
 
-    return NextResponse.json(groups);
+    return NextResponse.json(companyGroups);
   } catch (error) {
     console.error("GET /products/list ERROR:", error);
     return new NextResponse("Failed to fetch products", { status: 500 });

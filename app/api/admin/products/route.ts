@@ -18,6 +18,17 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
+    console.log("POST /api/admin/products - Received body:", {
+      name: body.name,
+      price: body.price,
+      description: body.description ? `${body.description.substring(0, 50)}...` : "missing",
+      categoryId: body.categoryId,
+      companyId: body.companyId,
+      imagesCount: Array.isArray(body.images) ? body.images.length : 0,
+      colorsCount: Array.isArray(body.colors) ? body.colors.length : 0,
+      sizesCount: Array.isArray(body.sizes) ? body.sizes.length : 0,
+    });
+
     const {
       name,
       price,
@@ -30,47 +41,89 @@ export async function POST(req: NextRequest) {
       isNew,
       isOnSale,
       discountPercent,
+      discountAmount,
       originalPrice,
     } = body;
 
-    if (!name || typeof name !== "string" || !name.trim()) {
-      return new NextResponse("Name is required", { status: 400 });
+    // اسم المنتج اختياري (يمكن أن يكون فارغاً)
+    const productName = (name && typeof name === "string" && name.trim()) ? name.trim() : "";
+    if (typeof price !== "number" || Number.isNaN(price) || price <= 0) {
+      console.error("Validation error: Price is invalid", price);
+      return NextResponse.json(
+        { error: "السعر غير صحيح", message: "السعر يجب أن يكون رقماً أكبر من الصفر" },
+        { status: 400 }
+      );
     }
-    if (typeof price !== "number" || Number.isNaN(price)) {
-      return new NextResponse("Price must be a number", { status: 400 });
+    // الوصف اختياري - لا نتحقق منه
+    const productDescription = (description && typeof description === "string" && description.trim()) 
+      ? description.trim() 
+      : "";
+    if (typeof categoryId !== "number" || categoryId === null || categoryId === undefined) {
+      console.error("Validation error: categoryId is invalid", categoryId);
+      return NextResponse.json(
+        { error: "الفئة غير صحيحة", message: "يرجى اختيار فئة صحيحة" },
+        { status: 400 }
+      );
     }
-    if (!description || typeof description !== "string") {
-      return new NextResponse("Description is required", { status: 400 });
-    }
-    if (typeof categoryId !== "number") {
-      return new NextResponse("categoryId must be a number", { status: 400 });
-    }
-    if (typeof companyId !== "number") {
-      return new NextResponse("companyId must be a number", { status: 400 });
+    if (typeof companyId !== "number" || companyId === null || companyId === undefined) {
+      console.error("Validation error: companyId is invalid", companyId);
+      return NextResponse.json(
+        { error: "الشركة غير صحيحة", message: "يرجى اختيار شركة صحيحة" },
+        { status: 400 }
+      );
     }
 
+    // التحقق من وجود الفئة في قاعدة البيانات
     const category = await prisma.category.findUnique({
       where: { id: categoryId },
     });
     if (!category) {
-      return new NextResponse("Category not found", { status: 400 });
+      console.error("Validation error: Category not found", categoryId);
+      return NextResponse.json(
+        { error: "الفئة غير موجودة", message: `الفئة برقم ${categoryId} غير موجودة في قاعدة البيانات` },
+        { status: 400 }
+      );
     }
 
+    // التحقق من وجود الشركة في قاعدة البيانات
     const company = await prisma.company.findUnique({
       where: { id: companyId },
     });
     if (!company) {
-      return new NextResponse("Company not found", { status: 400 });
+      console.error("Validation error: Company not found", companyId);
+      return NextResponse.json(
+        { error: "الشركة غير موجودة", message: `الشركة برقم ${companyId} غير موجودة في قاعدة البيانات` },
+        { status: 400 }
+      );
     }
 
     const safeImages = Array.isArray(images) ? images : [];
     
     // التحقق من الصور
     if (safeImages.length === 0) {
-      return new NextResponse("يجب إضافة صورة واحدة على الأقل", { status: 400 });
+      console.error("Validation error: No images provided");
+      return NextResponse.json(
+        { error: "يجب إضافة صورة واحدة على الأقل", message: "يجب إضافة صورة واحدة على الأقل" },
+        { status: 400 }
+      );
     }
     if (safeImages.length > 3) {
-      return new NextResponse("يمكنك إضافة 3 صور كحد أقصى", { status: 400 });
+      console.error("Validation error: Too many images", safeImages.length);
+      return NextResponse.json(
+        { error: "يمكنك إضافة 3 صور كحد أقصى", message: "يمكنك إضافة 3 صور كحد أقصى" },
+        { status: 400 }
+      );
+    }
+    
+    // التحقق من أن جميع الصور هي URLs صحيحة
+    for (const img of safeImages) {
+      if (typeof img !== "string" || !img.trim()) {
+        console.error("Validation error: Invalid image URL", img);
+        return NextResponse.json(
+          { error: "صورة غير صحيحة", message: "واحدة أو أكثر من الصور غير صحيحة" },
+          { status: 400 }
+        );
+      }
     }
     
     const safeColors = Array.isArray(colors) ? colors : [];
@@ -78,14 +131,15 @@ export async function POST(req: NextRequest) {
 
     const product = await prisma.product.create({
       data: {
-        name,
+        name: productName,
         price,
-        description,
+        description: productDescription,
         categoryId,
         companyId: Number(companyId),
         isNew: isNew === true,
         isOnSale: isOnSale === true,
         discountPercent: discountPercent ? Number(discountPercent) : null,
+        discountAmount: discountAmount ? Number(discountAmount) : null,
         originalPrice: originalPrice ? Number(originalPrice) : null,
         images: {
           create: safeImages.map((url: string) => ({ url })),
@@ -111,10 +165,40 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    console.log("Product created successfully:", product.id);
     return NextResponse.json(product);
-  } catch (error) {
+  } catch (error: any) {
     console.error("CREATE PRODUCT ERROR:", error);
-    return new NextResponse("Error creating product", { status: 500 });
+    console.error("Error details:", {
+      message: error?.message,
+      code: error?.code,
+      meta: error?.meta,
+    });
+    
+    // معالجة أخطاء Prisma بشكل أفضل
+    if (error?.code === "P2002") {
+      return NextResponse.json(
+        { error: "خطأ في قاعدة البيانات", message: "يبدو أن هناك منتجاً بنفس الاسم موجوداً بالفعل" },
+        { status: 400 }
+      );
+    }
+    
+    if (error?.code === "P2003") {
+      return NextResponse.json(
+        { error: "خطأ في قاعدة البيانات", message: "الفئة أو الشركة المحددة غير موجودة" },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { 
+        error: "خطأ في حفظ المنتج", 
+        message: process.env.NODE_ENV === "development" 
+          ? error?.message || "حدث خطأ غير متوقع" 
+          : "حدث خطأ في حفظ المنتج. يرجى المحاولة مرة أخرى" 
+      },
+      { status: 500 }
+    );
   }
 }
 

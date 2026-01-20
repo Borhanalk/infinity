@@ -7,6 +7,14 @@ import { prisma } from "@/app/lib/prisma";
 ================================================= */
 export async function GET() {
   try {
+    // فحص الاتصال بقاعدة البيانات أولاً
+    try {
+      await prisma.$connect();
+    } catch (connectError: any) {
+      console.error("Database connection failed:", connectError);
+      return NextResponse.json(null);
+    }
+
     const now = new Date();
     
     const campaigns = await prisma.campaign.findMany({
@@ -36,8 +44,16 @@ export async function GET() {
     });
 
     return NextResponse.json(campaigns[0] || null);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching active campaigns:", error);
+    console.error("Error code:", error?.code);
     return NextResponse.json(null);
+  } finally {
+    // إغلاق الاتصال برفق
+    try {
+      await prisma.$disconnect();
+    } catch (e) {
+      // تجاهل أخطاء الإغلاق
+    }
   }
 }

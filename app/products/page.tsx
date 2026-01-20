@@ -78,27 +78,33 @@ export default function ProductsListPage() {
       if (prodRes.ok) {
         const prods = await prodRes.json();
         // التحقق من وجود products في الـ response (في حالة وجود خطأ)
-        if (prods.products) {
+        if (prods.products !== undefined) {
+          // إذا كان هناك products في الـ response (حتى لو كان مصفوفة فارغة)
           setProducts(Array.isArray(prods.products) ? prods.products : []);
-          if (prods.error) {
-            // إظهار تحذير فقط، لا خطأ
-            console.warn("⚠️ Database connection issue:", prods.error);
+          if (prods.error || prods.message) {
+            // إظهار رسالة الخطأ بشكل واضح
+            const errorMsg = prods.message || prods.error || "حدث خطأ في تحميل المنتجات";
+            setError(errorMsg);
+            console.warn("⚠️ Database connection issue:", prods.error || prods.message);
           }
+        } else if (Array.isArray(prods)) {
+          // إذا كان الـ response مصفوفة مباشرة (بدون error)
+          setProducts(prods);
         } else {
-          setProducts(Array.isArray(prods) ? prods : []);
+          setProducts([]);
+          setError("فشل تحميل المنتجات - استجابة غير صحيحة من السيرفر");
         }
       } else {
         const errorData = await prodRes.json().catch(() => ({}));
         // إذا كان هناك products في الـ response حتى مع وجود خطأ، استخدمها
-        if (errorData.products) {
+        if (errorData.products !== undefined) {
           setProducts(Array.isArray(errorData.products) ? errorData.products : []);
         } else {
           setProducts([]);
         }
-        // إظهار خطأ فقط إذا لم تكن هناك منتجات
-        if (!errorData.products || errorData.products.length === 0) {
-          setError(errorData.details || errorData.error || "فشل تحميل المنتجات");
-        }
+        // إظهار خطأ بشكل واضح
+        const errorMsg = errorData.message || errorData.details || errorData.error || "فشل تحميل المنتجات";
+        setError(errorMsg);
       }
     } catch (err: any) {
       setError(err.message || "فشل تحميل المنتجات");
@@ -204,20 +210,29 @@ export default function ProductsListPage() {
           {!loading && filtered.length === 0 && (
             <Card className="text-center py-20">
               <CardContent>
-                <div className="text-6xl mb-6 opacity-30">🔍</div>
+                <div className="text-6xl mb-6 opacity-30">
+                  {error && (error.includes("Database connection") || error.includes("قاعدة البيانات"))
+                    ? "⚠️"
+                    : "🔍"}
+                </div>
                 <div className="text-muted-foreground text-xl mb-2">
-                  {error && error.includes("Database connection")
+                  {error && (error.includes("Database connection") || error.includes("قاعدة البيانات"))
                     ? "لا يمكن الاتصال بقاعدة البيانات"
-                    : "لم يتم العثور على منتجات"}
+                    : products.length === 0 && error
+                      ? "فشل تحميل المنتجات"
+                      : "لم يتم العثور على منتجات"}
                 </div>
-                <div className="text-muted-foreground/70 text-sm">
-                  {error && error.includes("Database connection")
-                    ? "يرجى التحقق من إعدادات قاعدة البيانات"
-                    : "جرب مصطلحات بحث مختلفة"}
+                <div className="text-muted-foreground/70 text-sm mb-4">
+                  {error && (error.includes("Database connection") || error.includes("قاعدة البيانات"))
+                    ? "يرجى التحقق من:\n1. ملف .env يحتوي على DATABASE_URL صحيح\n2. قاعدة البيانات تعمل ومتاحة\n3. الاتصال بالإنترنت نشط"
+                    : products.length === 0 && error
+                      ? error
+                      : "جرب مصطلحات بحث مختلفة أو اختر فئة أخرى"}
                 </div>
-                {error && error.includes("Database connection") && (
-                  <div className="mt-4 text-xs text-muted-foreground/60">
-                    {error}
+                {error && (
+                  <div className="mt-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-right">
+                    <div className="text-sm font-bold text-destructive mb-2">تفاصيل الخطأ:</div>
+                    <div className="text-xs text-muted-foreground whitespace-pre-line">{error}</div>
                   </div>
                 )}
               </CardContent>

@@ -14,7 +14,7 @@ model Category {
   imageUrl  String?
   createdAt DateTime @default(now())
 
-  products Product[]   // 👈 علاقة عكسية
+  products Product[] // 👈 علاقة عكسية
 }
 
 model Company {
@@ -24,34 +24,35 @@ model Company {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  products Product[]   // 👈 علاقة عكسية
-  
+  products Product[] // 👈 علاقة عكسية
+
   @@index([name])
 }
 
 model Product {
-  id          String   @id @default(uuid())
-  name        String
+  id          String @id @default(uuid())
+  name        String @default("") // اسم اختياري (يمكن أن يكون فارغاً)
   price       Float
-  description String
+  description String @default("") // وصف اختياري
 
-  categoryId  Int      // ✅ نفس نوع Category.id
-  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId Int // ✅ نفس نوع Category.id
+  category   Category @relation(fields: [categoryId], references: [id])
 
-  companyId   Int      // ✅ معرف الشركة (مطلوب)
-  company     Company  @relation(fields: [companyId], references: [id])
+  companyId Int // ✅ معرف الشركة (مطلوب)
+  company   Company @relation(fields: [companyId], references: [id])
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
   // New fields for collections and sales
-  isNew       Boolean  @default(false)
-  isOnSale    Boolean  @default(false)
-  discountPercent Int?  // 0-100
-  originalPrice Float?  // Original price before discount
+  isNew           Boolean @default(false)
+  isOnSale        Boolean @default(false)
+  discountPercent Int? // 0-100
+  discountAmount  Float? // مبلغ التنزيل الثابت
+  originalPrice   Float? // Original price before discount
 
-  images ProductImage[]
-  colors ProductColor[]
-  sizes  ProductSize[]
+  images     ProductImage[]
+  colors     ProductColor[]
+  sizes      ProductSize[]
   newArrival NewArrival? // علاقة مع البضاعة الجديدة
 }
 
@@ -79,27 +80,27 @@ model ProductSize {
 }
 
 model Campaign {
-  id              String   @id @default(uuid())
-  title            String
-  description      String?
-  discountPercent  Int?     // نسبة الخصم (0-100)
-  discountAmount   Float?   // مبلغ الخصم الثابت
-  isActive         Boolean  @default(true)
-  showOnHomepage   Boolean  @default(false) // عرض في الصفحة الرئيسية
-  startDate        DateTime?
-  endDate          DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  
-  products         CampaignProduct[]
+  id              String    @id @default(uuid())
+  title           String
+  description     String?
+  discountPercent Int? // نسبة الخصم (0-100)
+  discountAmount  Float? // مبلغ الخصم الثابت
+  isActive        Boolean   @default(true)
+  showOnHomepage  Boolean   @default(false) // عرض في الصفحة الرئيسية
+  startDate       DateTime?
+  endDate         DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  products CampaignProduct[]
 }
 
 model CampaignProduct {
-  id          String   @id @default(uuid())
-  campaignId  String
+  id         String   @id @default(uuid())
+  campaignId String
   productId  String
   campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  
+
   @@unique([campaignId, productId])
   @@index([productId])
 }
@@ -107,10 +108,10 @@ model CampaignProduct {
 model Admin {
   id        String   @id @default(uuid())
   email     String   @unique
-  password  String   // Hashed password using bcrypt
+  password  String // Hashed password using bcrypt
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@index([email])
 }
 
@@ -122,7 +123,7 @@ model NewArrival {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@index([productId])
   @@index([order])
 }

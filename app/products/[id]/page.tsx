@@ -125,13 +125,13 @@ export default function ProductDetailPage() {
   if (!product) return null;
 
   const displayImage = selectedImage || mainImage;
-  const displayPrice = product.originalPrice && product.originalPrice > product.price
+  const displayPrice = product.isOnSale && product.originalPrice && product.originalPrice > product.price
     ? product.originalPrice
     : null;
 
   const discountPercent = displayPrice && displayPrice > product.price
     ? Math.round(((displayPrice - product.price) / displayPrice) * 100)
-    : product.discountPercent || 0;
+    : (product.discountPercent || 0);
 
   const selectedSizeData = product.sizes?.find(s => s.size === selectedSize);
   const isOutOfStock = selectedSizeData ? selectedSizeData.quantity === 0 : false;
@@ -266,15 +266,15 @@ export default function ProductDetailPage() {
               )}
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                {product.name}
+                {product.name || "منتج"}
               </h1>
 
               {/* Price Section */}
               <div className="flex items-center gap-4 mb-8 p-6 bg-gradient-to-br from-secondary/20 to-secondary/10 rounded-2xl border border-border/50">
-                {displayPrice && displayPrice > product.price && (
+                {product.isOnSale && product.originalPrice && product.originalPrice > product.price && (
                   <div className="flex flex-col">
-                    <span className="text-xl text-muted-foreground line-through font-medium">{displayPrice} ₪</span>
-                    <span className="text-sm text-destructive font-black">وفر {Math.round(displayPrice - product.price)} ₪</span>
+                    <span className="text-xl text-destructive line-through font-medium">{product.originalPrice.toFixed(2)} ₪</span>
+                    <span className="text-sm text-destructive font-black">وفر {Math.round(product.originalPrice - product.price)} ₪</span>
                   </div>
                 )}
                 <div className="flex items-baseline gap-2">
@@ -282,7 +282,7 @@ export default function ProductDetailPage() {
                     "text-4xl md:text-5xl font-black",
                     product.isOnSale ? "text-destructive" : "text-foreground"
                   )}>
-                    {product.price}
+                    {product.price.toFixed(2)}
                   </span>
                   <span className="text-xl text-muted-foreground font-bold">₪</span>
                 </div>

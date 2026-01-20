@@ -10,10 +10,30 @@ export async function GET(req: Request) {
 
         console.log("GET /products - categoryId:", categoryId, "filter:", filter, "onSale:", onSale);
 
+        // فحص الاتصال بقاعدة البيانات أولاً
+        try {
+            await prisma.$connect();
+        } catch (connectError: any) {
+            console.error("Database connection failed:", connectError);
+            const errorMessage = connectError?.message || "Connection failed";
+            return NextResponse.json(
+                {
+                    error: "Database connection error",
+                    message: "لا يمكن الاتصال بقاعدة البيانات. يرجى التحقق من إعدادات DATABASE_URL في ملف .env",
+                    products: [],
+                    details: process.env.NODE_ENV === "development" ? errorMessage : undefined,
+                },
+                { status: 200 }
+            );
+        }
+
         const where: any = {};
 
         if (categoryId) {
-            where.categoryId = Number(categoryId);
+            const parsedCategoryId = Number(categoryId);
+            if (!isNaN(parsedCategoryId)) {
+                where.categoryId = parsedCategoryId;
+            }
         }
 
         if (filter === "new") {
@@ -40,28 +60,48 @@ export async function GET(req: Request) {
         return NextResponse.json(products);
     } catch (error: any) {
         console.error("GET /products ERROR:", error);
+        console.error("Error code:", error?.code);
+        console.error("Error meta:", error?.meta);
 
         const errorMessage = error?.message || "Unknown error";
+        const errorCode = error?.code || "";
+        
+        // فحص أنواع مختلفة من أخطاء قاعدة البيانات
         const isConnectionError =
+            errorCode === "P1001" || // Can't reach database server
+            errorCode === "P1000" || // Authentication failed
+            errorCode === "P1017" || // Server has closed the connection
             errorMessage.includes("Tenant") ||
             errorMessage.includes("not found") ||
             errorMessage.includes("connection") ||
+            errorMessage.includes("Connection") ||
             errorMessage.includes("Invalid") ||
-            errorMessage.includes("P1001") ||
-            errorMessage.includes("P1000") ||
-            errorMessage.includes("Can't reach database server");
+            errorMessage.includes("Can't reach database server") ||
+            errorMessage.includes("connect ECONNREFUSED") ||
+            errorMessage.includes("ENOTFOUND");
 
-        // إرجاع مصفوفة فارغة بدلاً من خطأ لتجنب توقف التطبيق
-        // يمكن للصفحة أن تتعامل مع المصفوفة الفارغة بشكل أفضل
+        // إرجاع مصفوفة فارغة مع رسالة خطأ واضحة
         return NextResponse.json(
             {
                 error: isConnectionError
-                    ? "Database connection error. Please check your DATABASE_URL in .env file"
+                    ? "Database connection error"
                     : "Failed to fetch products",
-                products: [], // مصفوفة فارغة لتجنب توقف التطبيق
-                details: process.env.NODE_ENV === "development" ? errorMessage : undefined
+                message: isConnectionError
+                    ? "لا يمكن الاتصال بقاعدة البيانات. يرجى التحقق من:\n1. ملف .env يحتوي على DATABASE_URL صحيح\n2. قاعدة البيانات تعمل ومتاحة\n3. الاتصال بالإنترنت نشط"
+                    : "فشل جلب المنتجات من قاعدة البيانات",
+                products: [],
+                details: process.env.NODE_ENV === "development" 
+                    ? `${errorMessage} (Code: ${errorCode})` 
+                    : undefined
             },
-            { status: 200 } // 200 بدلاً من 500 حتى لا يتوقف التطبيق
+            { status: 200 }
         );
+    } finally {
+        // إغلاق الاتصال برفق
+        try {
+            await prisma.$disconnect();
+        } catch (e) {
+            // تجاهل أخطاء الإغلاق
+        }
     }
 }

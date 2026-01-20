@@ -9,6 +9,21 @@ export async function GET(
     const { id } = await params;
     console.log("Fetching product with ID:", id);
     
+    // فحص الاتصال بقاعدة البيانات أولاً
+    try {
+      await prisma.$connect();
+    } catch (connectError: any) {
+      console.error("Database connection failed:", connectError);
+      return NextResponse.json(
+        {
+          error: "Database connection error",
+          message: "لا يمكن الاتصال بقاعدة البيانات. يرجى التحقق من إعدادات DATABASE_URL في ملف .env",
+          id,
+        },
+        { status: 500 }
+      );
+    }
+    
     const product = await prisma.product.findUnique({
       where: { id },
       include: {
@@ -40,25 +55,41 @@ export async function GET(
     });
     
     const errorMessage = error?.message || "Unknown error";
+    const errorCode = error?.code || "";
+    
+    // فحص أنواع مختلفة من أخطاء قاعدة البيانات
     const isConnectionError =
+      errorCode === "P1001" || // Can't reach database server
+      errorCode === "P1000" || // Authentication failed
+      errorCode === "P1017" || // Server has closed the connection
       errorMessage.includes("Tenant") ||
       errorMessage.includes("not found") ||
       errorMessage.includes("connection") ||
+      errorMessage.includes("Connection") ||
       errorMessage.includes("Invalid") ||
-      errorMessage.includes("P1001") ||
-      errorMessage.includes("P1000") ||
-      errorMessage.includes("P2002") ||
-      errorMessage.includes("Can't reach database server");
+      errorMessage.includes("Can't reach database server") ||
+      errorMessage.includes("connect ECONNREFUSED") ||
+      errorMessage.includes("ENOTFOUND");
 
     return NextResponse.json(
       {
         error: "Failed to fetch product",
-        details: isConnectionError
-          ? "Database connection error. Please check your DATABASE_URL in .env file"
+        message: isConnectionError
+          ? "لا يمكن الاتصال بقاعدة البيانات. يرجى التحقق من:\n1. ملف .env يحتوي على DATABASE_URL صحيح\n2. قاعدة البيانات تعمل ومتاحة\n3. الاتصال بالإنترنت نشط"
           : errorMessage,
+        details: process.env.NODE_ENV === "development" 
+          ? `${errorMessage} (Code: ${errorCode})` 
+          : undefined,
         id,
       },
       { status: 500 }
     );
+  } finally {
+    // إغلاق الاتصال برفق
+    try {
+      await prisma.$disconnect();
+    } catch (e) {
+      // تجاهل أخطاء الإغلاق
+    }
   }
 }

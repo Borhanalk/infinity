@@ -55,7 +55,9 @@ export function ProductCard({ product }: ProductCardProps) {
     : "/placeholder-image.jpg";
 
   const categoryName = product.category?.name || "";
-  const displayPrice = product.originalPrice && product.originalPrice > product.price
+  
+  // حساب السعر الأصلي والسعر بعد التنزيل
+  const displayPrice = product.isOnSale && product.originalPrice && product.originalPrice > product.price
     ? product.originalPrice
     : null;
 
@@ -110,12 +112,12 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
         <Link href={`/products/${product.id}`} className="block group/link">
           <h3 className="font-black text-foreground text-base sm:text-lg mb-3 sm:mb-4 group-hover/link:text-foreground/80 transition-colors leading-tight line-clamp-2 cursor-pointer">
-            {product.name}
+            {product.name || "منتج"}
           </h3>
         </Link>
         <div className="flex items-center justify-start gap-3 sm:gap-4 mb-3 sm:mb-4">
-          {displayPrice && displayPrice > product.price && (
-            <span className="text-muted-foreground text-sm sm:text-base line-through font-medium">{displayPrice} ₪</span>
+          {product.isOnSale && displayPrice && displayPrice > product.price && (
+            <span className="text-destructive text-sm sm:text-base line-through font-medium">{displayPrice.toFixed(2)} ₪</span>
           )}
           <span
             className={cn(
@@ -123,7 +125,7 @@ export function ProductCard({ product }: ProductCardProps) {
               product.isOnSale ? "text-destructive" : "text-foreground"
             )}
           >
-            {product.price} ₪
+            {product.price.toFixed(2)} ₪
           </span>
         </div>
 
