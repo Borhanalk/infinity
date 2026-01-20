@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ProductCard } from "../components/ProductCard";
+import { Card, CardContent } from "@/components/ui/card";
 
 type Product = {
   id: string;
@@ -105,18 +106,17 @@ export default function SalesPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/20 text-foreground pt-16 sm:pt-20 lg:pt-24 overflow-x-hidden" dir="rtl">
-      <section className="py-6 sm:py-12 lg:py-16 xl:py-20 px-3 sm:px-4 lg:px-6 xl:px-16">
-        <div className="max-w-7xl mx-auto overflow-hidden">
-          {/* Header */}
-          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
-            <span className="text-[#D4AF37] text-xs sm:text-sm tracking-[0.3em] uppercase block mb-3 sm:mb-4 font-bold">מבצעים</span>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-3 sm:mb-4 bg-gradient-to-r from-foreground via-[#D4AF37] to-foreground/70 bg-clip-text text-transparent">הזדמנות אחרונה</h1>
-            <p className="text-gray-400 text-sm sm:text-base lg:text-lg font-medium">הצעות מוגבלות בזמן על פריטים יוקרתיים</p>
-          </div>
+    <main className="min-h-screen bg-background text-foreground pt-16 sm:pt-20 lg:pt-24 overflow-x-hidden">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8 lg:py-12 xl:py-16 overflow-hidden">
+        {/* Header */}
+        <div className="mb-6 sm:mb-8 lg:mb-12 xl:mb-16">
+          <span className="text-[#D4AF37] text-xs sm:text-sm tracking-wider uppercase block mb-2 sm:mb-3 lg:mb-4 font-bold">מבצעים</span>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black mb-3 sm:mb-4 lg:mb-6 bg-gradient-to-r from-foreground via-[#D4AF37] to-foreground/70 bg-clip-text text-transparent">הזדמנות אחרונה</h1>
+          <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">הצעות מוגבלות בזמן על פריטים יוקרתיים</p>
+        </div>
 
-          {/* Filters */}
-          <div className="flex flex-wrap gap-2 sm:gap-3 mb-6 sm:mb-8 lg:mb-12 justify-center">
+        {/* Filters */}
+        <div className="flex flex-wrap gap-2 sm:gap-3 mb-6 sm:mb-8 lg:mb-12 justify-center">
             <button
               onClick={() => setFilter("all")}
               className={`px-4 sm:px-6 py-2 border-2 text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 rounded-lg font-semibold ${
@@ -167,30 +167,27 @@ export default function SalesPage() {
             >
               מתחת ל-99 ₪
             </button>
-          </div>
-
-          {loading && (
-            <div className="text-center py-12 sm:py-20 text-gray-400 text-base sm:text-lg font-medium">טוען...</div>
-          )}
-
-          {/* Products Grid - 3 columns on mobile, same as homepage */}
-          {!loading && filteredProducts.length > 0 && (
-            <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4 lg:gap-6 xl:gap-8">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          )}
-
-          {!loading && filteredProducts.length === 0 && (
-            <div className="text-center py-12 sm:py-20">
-              <div className="text-5xl mb-4 opacity-30">⚜</div>
-              <div className="text-gray-400 text-base sm:text-lg font-medium">לא נמצאו מוצרים</div>
-              <div className="text-gray-500 text-sm mt-2 font-medium">נסה מסננים שונים</div>
-            </div>
-          )}
         </div>
-      </section>
-    </div>
+
+        {/* Products Grid */}
+        {loading ? (
+          <div className="text-center py-12 sm:py-20 text-muted-foreground text-base sm:text-lg lg:text-xl">טוען...</div>
+        ) : filteredProducts.length > 0 ? (
+          <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 xl:gap-8">
+            {filteredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <Card className="text-center py-12 sm:py-20">
+            <CardContent>
+              <div className="text-5xl sm:text-6xl mb-4 sm:mb-6 opacity-30">⚜</div>
+              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground">לא נמצאו מוצרים</p>
+              <p className="text-sm text-muted-foreground/70 mt-2">נסה מסננים שונים</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </main>
   );
 }
