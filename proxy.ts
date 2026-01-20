@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 
-// استخدام singleton pattern لتجنب إنشاء اتصالات متعددة
+// ✅ Singleton Prisma لتجنب اتصالات كثيرة
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
@@ -14,7 +14,9 @@ if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
+// ✅ لازم تضيف JWT_SECRET في Vercel Environment Variables
+const JWT_SECRET =
+  process.env.JWT_SECRET || "your-secret-key-change-in-production";
 
 const ADMIN_PATHS = ["/admin", "/api/admin"];
 
@@ -24,23 +26,21 @@ function needsAuth(pathname: string) {
 
 async function verifyAdmin(request: NextRequest) {
   try {
-    // الحصول على Token من cookies
+    // ✅ Token من cookies
     const token = request.cookies.get("admin_token")?.value;
 
-    if (!token) {
-      return null;
-    }
+    if (!token) return null;
 
     const decoded = jwt.verify(token, JWT_SECRET) as { id: string; email: string };
 
-    // التحقق من وجود المسؤول في قاعدة البيانات
+    // ✅ تحقق من وجود الأدمن في DB
     const admin = await prisma.admin.findUnique({
       where: { id: decoded.id },
       select: { id: true, email: true },
     });
 
     return admin;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -48,29 +48,33 @@ async function verifyAdmin(request: NextRequest) {
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // السماح بالوصول إلى صفحة تسجيل الدخول و logout و API تسجيل الدخول
+  // ✅ السماح لصفحات الدخول والخروج و API تسجيل الدخول
   if (
-    pathname === "/admin/login" || 
+    pathname === "/admin/login" ||
     pathname === "/admin/logout" ||
     pathname === "/api/admin/auth"
   ) {
     return NextResponse.next();
   }
 
-  // التحقق من الحاجة للمصادقة
+  // ✅ لو مش مسار admin لا نعمل شيء
   if (!needsAuth(pathname)) {
     return NextResponse.next();
   }
 
-  // التحقق من المسؤول
+  // ✅ تحقق من الأدمن
   const admin = await verifyAdmin(req);
 
+  // ❌ غير مسجل دخول
   if (!admin) {
-    // للصفحات، إعادة التوجيه إلى صفحة تسجيل الدخول
+    // صفحات admin: Redirect للـ login
     if (pathname.startsWith("/admin")) {
-      return NextResponse.redirect(new URL("/admin/login", req.url));
+      const loginUrl = new URL("/admin/login", req.url);
+      loginUrl.searchParams.set("returnTo", pathname);
+      return NextResponse.redirect(loginUrl);
     }
-    // للـ API routes، إرجاع خطأ JSON
+
+    // API admin: JSON 401
     return NextResponse.json(
       { error: "غير مصرح. يرجى تسجيل الدخول" },
       { status: 401 }

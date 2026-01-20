@@ -35,9 +35,6 @@ export function Navbar() {
     { href: "/", label: "בית" },
     { href: "/collections/new", label: "חדש" },
     { href: "/sale", label: "מבצעים" },
-    { href: "/categories/pants", label: "מכנסיים" },
-    { href: "/categories/shirts", label: "חולצות" },
-    { href: "/categories/shoes", label: "נעליים" },
   ];
 
   return (
