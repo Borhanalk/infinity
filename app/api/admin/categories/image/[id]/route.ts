@@ -27,8 +27,12 @@ export async function POST(
     );
   }
 
-  const ext = file.name.split(".").pop();
-  const fileName = `category-${id}-${Date.now()}.${ext}`;
+  // تنظيف اسم الملف
+  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const sanitizedExt = ext.replace(/[^a-z0-9]/g, "");
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 8);
+  const fileName = `category-${id}-${timestamp}-${random}.${sanitizedExt}`;
 
   const { error } = await supabaseAdmin.storage
     .from("categories")
