@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useCart } from "../../contexts/CartContext";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingBag, Loader2, AlertCircle } from "lucide-react";
+import { ShoppingBag, Loader2, AlertCircle, CheckCircle2, ArrowRight, Package, Truck, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 type Product = {
   id: string;
@@ -19,6 +20,11 @@ type Product = {
   isOnSale?: boolean;
   discountPercent?: number | null;
   originalPrice?: number | null;
+  categoryId: number;
+  category?: {
+    id: number;
+    name: string;
+  } | null;
   company?: {
     id: number;
     name: string;
@@ -31,6 +37,7 @@ type Product = {
 
 export default function ProductDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params?.id as string;
   const { addItem } = useCart();
 
@@ -40,6 +47,8 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [addedToCart, setAddedToCart] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     if (!id) {
@@ -113,39 +122,82 @@ export default function ProductDetailPage() {
     ? product.originalPrice
     : null;
 
+  const discountPercent = displayPrice && displayPrice > product.price
+    ? Math.round(((displayPrice - product.price) / displayPrice) * 100)
+    : product.discountPercent || 0;
+
+  const selectedSizeData = product.sizes?.find(s => s.size === selectedSize);
+  const isOutOfStock = selectedSizeData ? selectedSizeData.quantity === 0 : false;
+
+  const handleAddToCart = () => {
+    if (isOutOfStock) return;
+    
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: displayImage,
+      color: selectedColor || undefined,
+      size: selectedSize || undefined,
+      quantity: quantity,
+    });
+
+    setAddedToCart(true);
+    setTimeout(() => setAddedToCart(false), 3000);
+  };
+
   return (
-    <div className="min-h-screen bg-background text-foreground pt-24">
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/20 text-foreground pt-24" dir="rtl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
+        {/* Breadcrumb */}
+        <div className="mb-8 flex items-center gap-2 text-sm text-muted-foreground">
+          <Link href="/" className="hover:text-foreground transition-colors">الرئيسية</Link>
+          <ArrowRight size={16} className="rotate-180" />
+          <Link href="/products" className="hover:text-foreground transition-colors">المنتجات</Link>
+          {product.category && (
+            <>
+              <ArrowRight size={16} className="rotate-180" />
+              <Link href={`/categories/${product.category.id}`} className="hover:text-foreground transition-colors">
+                {product.category.name}
+              </Link>
+            </>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 mb-16">
           {/* IMAGES SECTION */}
-          <div>
+          <div className="sticky top-24">
             {/* Main Image */}
             {displayImage ? (
-              <Card className="mb-6 overflow-hidden border-border">
-                <div className="relative aspect-square">
+              <Card className="mb-6 overflow-hidden border-2 border-border/50 shadow-2xl rounded-3xl group">
+                <div className="relative aspect-square bg-gradient-to-br from-muted/50 to-muted overflow-hidden">
                   <img
                     src={displayImage}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/placeholder-image.jpg";
+                    }}
                   />
-                  <div className="absolute top-4 right-4 flex gap-2">
+                  <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
                     {product.isNew && (
-                      <Badge variant="new" className="text-xs px-4 py-1.5 uppercase tracking-wider font-black">
-                        NEW
+                      <Badge variant="new" className="text-xs px-4 py-2 uppercase tracking-wider font-black shadow-lg animate-pulse">
+                        جديد
                       </Badge>
                     )}
-                    {product.isOnSale && (
-                      <Badge variant="sale" className="text-xs px-4 py-1.5 uppercase tracking-wider font-black">
-                        SALE
+                    {product.isOnSale && discountPercent > 0 && (
+                      <Badge variant="sale" className="text-xs px-4 py-2 uppercase tracking-wider font-black shadow-lg">
+                        خصم {discountPercent}%
                       </Badge>
                     )}
                   </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </div>
               </Card>
             ) : (
-              <Card className="mb-6 border-border">
-                <div className="aspect-square bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-                  <span className="text-6xl opacity-30">🛍️</span>
+              <Card className="mb-6 border-2 border-border/50 rounded-3xl">
+                <div className="aspect-square bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center rounded-3xl">
+                  <Package className="w-24 h-24 text-muted-foreground/30" />
                 </div>
               </Card>
             )}
@@ -154,16 +206,14 @@ export default function ProductDetailPage() {
             {product.images && product.images.length > 1 && (
               <div className="grid grid-cols-4 md:grid-cols-5 gap-3">
                 {product.images.map((img, index) => (
-                  <Button
+                  <button
                     key={img.url}
-                    variant="outline"
-                    size="icon"
                     onClick={() => setSelectedImage(img.url)}
                     className={cn(
-                      "h-24 w-full rounded-xl overflow-hidden p-0 border-2 transition-all",
-                      selectedImage === img.url
-                        ? "border-[#D4AF37] scale-105"
-                        : "border-border hover:border-border/80"
+                      "h-20 md:h-24 w-full rounded-xl overflow-hidden border-2 transition-all duration-300 relative group",
+                      selectedImage === img.url || (!selectedImage && index === 0)
+                        ? "border-[#D4AF37] scale-105 shadow-lg ring-2 ring-[#D4AF37]/50"
+                        : "border-border hover:border-[#D4AF37]/50 hover:scale-105"
                     )}
                   >
                     <img
@@ -171,7 +221,10 @@ export default function ProductDetailPage() {
                       alt={`${product.name} - Image ${index + 1}`}
                       className="h-full w-full object-cover"
                     />
-                  </Button>
+                    {selectedImage === img.url || (!selectedImage && index === 0) && (
+                      <div className="absolute inset-0 bg-[#D4AF37]/20" />
+                    )}
+                  </button>
                 ))}
               </div>
             )}
@@ -179,73 +232,102 @@ export default function ProductDetailPage() {
 
           {/* PRODUCT INFO */}
           <div className="space-y-8">
+            {/* Company & Title */}
             <div>
               {product.company && (
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-3 mb-6 p-4 bg-secondary/30 rounded-2xl border border-border/50">
                   {product.company.logoUrl ? (
                     <img
                       src={product.company.logoUrl}
                       alt={product.company.name}
-                      className="w-10 h-10 object-contain"
+                      className="w-12 h-12 object-contain rounded-lg bg-background p-2"
                     />
                   ) : null}
                   <div>
-                    <p className="text-sm text-muted-foreground font-bold">العلامة التجارية</p>
-                    <p className="text-base font-black text-foreground">{product.company.name}</p>
+                    <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">العلامة التجارية</p>
+                    <p className="text-lg font-black text-foreground">{product.company.name}</p>
                   </div>
                 </div>
               )}
-              <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">{product.name}</h1>
-              <div className="flex items-center gap-4 mb-6">
+              
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                {product.name}
+              </h1>
+
+              {/* Price Section */}
+              <div className="flex items-center gap-4 mb-8 p-6 bg-gradient-to-br from-secondary/20 to-secondary/10 rounded-2xl border border-border/50">
                 {displayPrice && displayPrice > product.price && (
-                  <span className="text-2xl text-muted-foreground line-through font-medium">{displayPrice} ₪</span>
+                  <div className="flex flex-col">
+                    <span className="text-xl text-muted-foreground line-through font-medium">{displayPrice} ₪</span>
+                    <span className="text-sm text-destructive font-black">وفر {Math.round(displayPrice - product.price)} ₪</span>
+                  </div>
                 )}
-                <span className={cn(
-                  "text-4xl font-black",
-                  product.isOnSale ? "text-destructive" : "text-foreground"
-                )}>
-                  {product.price} ₪
-                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className={cn(
+                    "text-4xl md:text-5xl font-black",
+                    product.isOnSale ? "text-destructive" : "text-foreground"
+                  )}>
+                    {product.price}
+                  </span>
+                  <span className="text-xl text-muted-foreground font-bold">₪</span>
+                </div>
               </div>
             </div>
 
-            <Separator />
+            <Separator className="bg-border/50" />
 
-            <div>
-              <h2 className="text-xl font-black mb-4 text-foreground">الوصف</h2>
-              <p className="text-muted-foreground leading-relaxed text-lg">{product.description}</p>
+            {/* Description */}
+            <div className="p-6 bg-secondary/10 rounded-2xl border border-border/30">
+              <h2 className="text-2xl font-black mb-4 text-foreground flex items-center gap-2">
+                <Package className="w-6 h-6 text-[#D4AF37]" />
+                الوصف
+              </h2>
+              <p className="text-muted-foreground leading-relaxed text-lg whitespace-pre-line">{product.description}</p>
             </div>
 
+            {/* Colors */}
             {product.colors && product.colors.length > 0 && (
-              <div>
-                <Separator className="mb-6" />
-                <div className="text-sm text-muted-foreground mb-4 uppercase tracking-wider font-bold">اللون</div>
-                <div className="flex gap-4">
+              <div className="p-6 bg-secondary/10 rounded-2xl border border-border/30">
+                <div className="text-sm text-muted-foreground mb-4 uppercase tracking-wider font-bold flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-[#D4AF37]" />
+                  اختر اللون
+                </div>
+                <div className="flex flex-wrap gap-3">
                   {product.colors.map((c) => (
-                    <Button
+                    <button
                       key={c.id}
-                      variant="outline"
-                      size="icon"
                       onClick={() => setSelectedColor(c.name)}
                       className={cn(
-                        "w-16 h-16 rounded-full border-2 transition-all",
+                        "relative w-16 h-16 rounded-full border-2 transition-all duration-300 transform hover:scale-110",
                         selectedColor === c.name
-                          ? "border-[#D4AF37] scale-110"
-                          : "border-border hover:border-border/80"
+                          ? "border-[#D4AF37] scale-110 shadow-lg ring-4 ring-[#D4AF37]/30"
+                          : "border-border hover:border-[#D4AF37]/50"
                       )}
                       style={{ backgroundColor: c.hex }}
                       aria-label={c.name}
                       title={c.name}
-                    />
+                    >
+                      {selectedColor === c.name && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <CheckCircle2 className="w-6 h-6 text-white drop-shadow-lg" />
+                        </div>
+                      )}
+                    </button>
                   ))}
                 </div>
+                {selectedColor && (
+                  <p className="mt-3 text-sm text-muted-foreground">اللون المختار: <span className="font-black text-foreground">{selectedColor}</span></p>
+                )}
               </div>
             )}
 
+            {/* Sizes */}
             {product.sizes && product.sizes.length > 0 && (
-              <div>
-                <Separator className="mb-6" />
-                <div className="text-sm text-muted-foreground mb-4 uppercase tracking-wider font-bold">المقاس</div>
+              <div className="p-6 bg-secondary/10 rounded-2xl border border-border/30">
+                <div className="text-sm text-muted-foreground mb-4 uppercase tracking-wider font-bold flex items-center gap-2">
+                  <Package className="w-4 h-4" />
+                  اختر المقاس
+                </div>
                 <div className="flex flex-wrap gap-3">
                   {product.sizes.map((s) => (
                     <Button
@@ -255,39 +337,129 @@ export default function ProductDetailPage() {
                       onClick={() => s.quantity > 0 && setSelectedSize(s.size)}
                       disabled={s.quantity === 0}
                       className={cn(
-                        "min-w-[80px]",
-                        selectedSize === s.size && "bg-[#D4AF37] hover:bg-[#C9A961] text-black border-[#D4AF37]",
-                        s.quantity === 0 && "opacity-50 cursor-not-allowed"
+                        "min-w-[90px] h-14 text-base font-black transition-all duration-300",
+                        selectedSize === s.size 
+                          ? "bg-[#D4AF37] hover:bg-[#C9A961] text-black border-2 border-[#D4AF37] shadow-lg scale-105" 
+                          : "hover:border-[#D4AF37]/50",
+                        s.quantity === 0 && "opacity-40 cursor-not-allowed line-through"
                       )}
                     >
                       {s.size}
-                      {s.quantity === 0 && " (نفذ)"}
+                      {s.quantity > 0 && s.quantity < 5 && (
+                        <span className="text-xs text-destructive mr-1">({s.quantity} متبقي)</span>
+                      )}
                     </Button>
                   ))}
                 </div>
+                {selectedSizeData && (
+                  <p className={cn(
+                    "mt-3 text-sm font-bold",
+                    selectedSizeData.quantity > 0 ? "text-green-600" : "text-destructive"
+                  )}>
+                    {selectedSizeData.quantity > 0 
+                      ? `✓ متوفر (${selectedSizeData.quantity} قطعة)` 
+                      : "✗ غير متوفر"}
+                  </p>
+                )}
               </div>
             )}
 
-            <Separator />
+            {/* Quantity Selector */}
+            <div className="p-6 bg-secondary/10 rounded-2xl border border-border/30">
+              <div className="text-sm text-muted-foreground mb-4 uppercase tracking-wider font-bold">الكمية</div>
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  disabled={quantity <= 1}
+                  className="w-12 h-12 text-xl font-black"
+                >
+                  −
+                </Button>
+                <span className="text-2xl font-black min-w-[60px] text-center">{quantity}</span>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setQuantity(quantity + 1)}
+                  disabled={isOutOfStock || (selectedSizeData && quantity >= selectedSizeData.quantity)}
+                  className="w-12 h-12 text-xl font-black"
+                >
+                  +
+                </Button>
+              </div>
+            </div>
 
-            <Button
-              variant="gold"
-              size="xl"
-              className="w-full uppercase tracking-wide shadow-xl hover:shadow-2xl"
-              onClick={() =>
-                addItem({
-                  id: product.id,
-                  name: product.name,
-                  price: product.price,
-                  image: displayImage,
-                  color: selectedColor || undefined,
-                  size: selectedSize || undefined,
-                })
-              }
-            >
-              <ShoppingBag size={20} className="ml-2" />
-              הוסף לעגלה
-            </Button>
+            <Separator className="bg-border/50" />
+
+            {/* Add to Cart Button */}
+            <div className="space-y-4">
+              <Button
+                variant="gold"
+                size="xl"
+                disabled={isOutOfStock}
+                className={cn(
+                  "w-full h-16 text-lg uppercase tracking-wide shadow-2xl hover:shadow-3xl transition-all duration-300",
+                  addedToCart && "bg-green-600 hover:bg-green-700",
+                  isOutOfStock && "opacity-50 cursor-not-allowed"
+                )}
+                onClick={handleAddToCart}
+              >
+                {addedToCart ? (
+                  <>
+                    <CheckCircle2 size={24} className="ml-2" />
+                    تمت الإضافة إلى السلة!
+                  </>
+                ) : isOutOfStock ? (
+                  <>
+                    <AlertCircle size={24} className="ml-2" />
+                    غير متوفر
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag size={24} className="ml-2" />
+                    أضف إلى السلة
+                  </>
+                )}
+              </Button>
+
+              {addedToCart && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full"
+                  onClick={() => router.push("/cart")}
+                >
+                  <ShoppingBag size={20} className="ml-2" />
+                  عرض السلة
+                </Button>
+              )}
+            </div>
+
+            {/* Features */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-8">
+              <div className="flex items-center gap-3 p-4 bg-secondary/10 rounded-xl border border-border/30">
+                <Truck className="w-6 h-6 text-[#D4AF37]" />
+                <div>
+                  <p className="text-xs text-muted-foreground font-bold">شحن مجاني</p>
+                  <p className="text-sm font-black">لجميع الطلبات</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 bg-secondary/10 rounded-xl border border-border/30">
+                <Shield className="w-6 h-6 text-[#D4AF37]" />
+                <div>
+                  <p className="text-xs text-muted-foreground font-bold">ضمان الجودة</p>
+                  <p className="text-sm font-black">ضمان 30 يوم</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 bg-secondary/10 rounded-xl border border-border/30">
+                <Package className="w-6 h-6 text-[#D4AF37]" />
+                <div>
+                  <p className="text-xs text-muted-foreground font-bold">إرجاع سهل</p>
+                  <p className="text-sm font-black">خلال 14 يوم</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

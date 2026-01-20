@@ -185,10 +185,10 @@ export default function AddProductPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-6 lg:space-y-8">
       <div>
-        <h1 className="text-4xl md:text-5xl font-black mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">إضافة منتج</h1>
-        <p className="text-muted-foreground text-lg">أضف منتج جديد مع جميع التفاصيل</p>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">إضافة منتج</h1>
+        <p className="text-muted-foreground text-base lg:text-lg">أضف منتج جديد مع جميع التفاصيل</p>
       </div>
 
       {/* BASIC INFO */}
@@ -273,7 +273,7 @@ export default function AddProductPage() {
           </div>
 
           {/* NEW & SALE FIELDS */}
-          <div className="flex gap-6 items-center pt-4">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-center pt-4">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -295,7 +295,7 @@ export default function AddProductPage() {
           </div>
 
           {isOnSale && (
-            <div className="grid grid-cols-2 gap-4 pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
               <div>
                 <Label htmlFor="originalPrice" className="text-sm font-bold mb-2 block">السعر الأصلي</Label>
                 <Input
@@ -334,7 +334,7 @@ export default function AddProductPage() {
         <CardContent className="space-y-4">
           {/* معاينة الصور المختارة */}
           {imageFiles.length > 0 && (
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {imageFiles.map((file, index) => (
                 <div key={index} className="relative group">
                   <img

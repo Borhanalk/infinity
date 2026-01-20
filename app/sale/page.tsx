@@ -84,17 +84,17 @@ export default function SalePage() {
   });
 
   return (
-    <main className="min-h-screen bg-background text-foreground pt-24">
-      <div className="container mx-auto px-6 py-16">
+    <main className="min-h-screen bg-background text-foreground pt-20 sm:pt-24">
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 lg:py-16">
         {/* Header */}
-        <div className="text-center mb-16">
-          <span className="text-[#D4AF37] text-sm tracking-wider uppercase block mb-4 font-bold">
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+          <span className="text-[#D4AF37] text-xs sm:text-sm tracking-wider uppercase block mb-3 sm:mb-4 font-bold">
             מבצעים
           </span>
-          <h1 className="text-5xl md:text-7xl font-black mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black mb-4 sm:mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
             آخر فرصة
           </h1>
-          <p className="text-muted-foreground text-lg">عروض محدودة على القطع المميزة</p>
+          <p className="text-muted-foreground text-base sm:text-lg">عروض محدودة على القطع المميزة</p>
         </div>
 
         {/* Filters */}
@@ -102,9 +102,9 @@ export default function SalePage() {
 
         {/* Products Grid */}
         {loading ? (
-          <div className="text-center py-20 text-muted-foreground text-xl">جاري التحميل...</div>
+          <div className="text-center py-12 sm:py-20 text-muted-foreground text-lg sm:text-xl">جاري التحميل...</div>
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

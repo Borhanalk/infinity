@@ -52,16 +52,16 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       {/* HEADER */}
-      <div className="border-b border-border pb-8">
-        <span className="text-[#D4AF37] text-sm tracking-wider uppercase block mb-3 font-bold">لوحة التحكم</span>
-        <h1 className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">لوحة التحكم</h1>
-        <p className="text-muted-foreground text-lg">
+      <div className="border-b border-border pb-6 lg:pb-8">
+        <span className="text-[#D4AF37] text-xs lg:text-sm tracking-wider uppercase block mb-2 lg:mb-3 font-bold">لوحة التحكم</span>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-3 lg:mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">لوحة التحكم</h1>
+        <p className="text-muted-foreground text-base lg:text-lg">
           مرحباً بك في لوحة إدارة المتجر
         </p>
       </div>
 
       {/* STATS CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
         <Card asChild className="hover:shadow-xl transition-all duration-300 border-border">
           <Link href="/admin/products">
             <CardHeader>
@@ -114,7 +114,7 @@ export default function AdminDashboard() {
           <CardTitle className="text-2xl font-black">إجراءات سريعة</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Button
               variant="outline"
               size="lg"

@@ -66,9 +66,9 @@ function MarqueeSection() {
   if (!campaign) {
     // Default marquee
     return (
-      <div className="bg-black text-white py-4 border-t border-gray-800 overflow-hidden relative flex items-center min-h-[56px]">
+      <div className="bg-black text-white py-3 sm:py-4 border-t border-gray-800 overflow-hidden relative flex items-center min-h-[48px] sm:min-h-[56px]">
         <div className="flex-1 overflow-hidden relative h-full flex items-center">
-          <div className="whitespace-nowrap px-4 text-sm font-bold absolute w-full text-center md:text-right flex justify-center md:justify-end gap-8">
+          <div className="whitespace-nowrap px-2 sm:px-4 text-xs sm:text-sm font-bold absolute w-full text-center lg:text-right flex justify-center lg:justify-end gap-4 sm:gap-8">
             <span className="text-yellow-400">★ מבצעי העונה:</span>
             <span>הנחה 20% על נעליים</span>
             <span className="opacity-50">|</span>
@@ -76,13 +76,14 @@ function MarqueeSection() {
             <span>חליפות פשתן קיץ</span>
           </div>
         </div>
-        <Link
-          href="/sale"
-          className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-xs md:text-sm font-black px-8 flex items-center gap-2 z-20 transition-all duration-300 shadow-lg hover:shadow-xl uppercase tracking-wide"
-        >
-          <ArrowRight size={16} className="group-hover:-translate-x-1 transition-transform rotate-180" />
-          <span>צפה במבצעים</span>
-        </Link>
+      <Link
+        href="/sale"
+        className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-xs sm:text-sm font-black px-4 sm:px-6 lg:px-8 flex items-center gap-1 sm:gap-2 z-20 transition-all duration-300 shadow-lg hover:shadow-xl uppercase tracking-wide"
+      >
+        <ArrowRight size={14} className="group-hover:-translate-x-1 transition-transform rotate-180" />
+        <span className="hidden sm:inline">צפה במבצעים</span>
+        <span className="sm:hidden">מבצעים</span>
+      </Link>
       </div>
     );
   }
@@ -167,23 +168,23 @@ export default function Home() {
 
       {/* 4) New Collections */}
       {!loading && newProducts.length > 0 && (
-        <section className="py-24 bg-gradient-to-b from-background to-secondary/30">
-          <div className="container mx-auto px-6">
-            <div className="flex justify-between items-end mb-16">
+        <section className="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-background to-secondary/30">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 sm:mb-12 lg:mb-16 gap-4">
               <Button
                 variant="ghost"
                 asChild
                 size="lg"
-                className="group text-muted-foreground hover:text-foreground font-bold text-base uppercase tracking-wide"
+                className="group text-muted-foreground hover:text-foreground font-bold text-sm sm:text-base uppercase tracking-wide"
               >
                 <Link href="/collections/new">
-                  <ArrowRight size={20} className="group-hover:-translate-x-1 transition-transform rotate-180" />
+                  <ArrowRight size={18} className="group-hover:-translate-x-1 transition-transform rotate-180" />
                   <span>הצג הכל</span>
                 </Link>
               </Button>
-              <h2 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">חדש</h2>
+              <h2 className="text-4xl sm:text-5xl lg:text-7xl font-black bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">חדש</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {newProducts.slice(0, 4).map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -193,17 +194,17 @@ export default function Home() {
       )}
 
       {/* 5) Categories */}
-      <section className="py-24 bg-gradient-to-b from-secondary/20 via-background to-background border-t border-border">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-5xl md:text-7xl font-black mb-16 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">קניות לפי קטגוריה</h2>
+      <section className="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-secondary/20 via-background to-background border-t border-border">
+        <div className="container mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-4xl sm:text-5xl lg:text-7xl font-black mb-8 sm:mb-12 lg:mb-16 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">קניות לפי קטגוריה</h2>
           <CategoryGrid />
         </div>
       </section>
 
       {/* 6) Footer */}
-      <footer className="bg-gradient-to-b from-gray-900 to-black text-white py-16 border-t border-gray-800">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+      <footer className="bg-gradient-to-b from-gray-900 to-black text-white py-12 sm:py-16 border-t border-gray-800">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-8 sm:mb-12">
             {/* About */}
             <div>
               <h3 className="text-xl font-black mb-4 text-white">אודותינו</h3>
@@ -262,17 +263,17 @@ export default function Home() {
           </div>
 
           {/* Bottom Section with Buttons */}
-          <div className="border-t border-gray-800 pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-              <p className="text-gray-400 text-sm">
+          <div className="border-t border-gray-800 pt-6 sm:pt-8">
+            <div className="flex flex-col lg:flex-row justify-between items-center gap-4 sm:gap-6">
+              <p className="text-gray-400 text-xs sm:text-sm text-center lg:text-right">
                 © {new Date().getFullYear()} כל הזכויות שמורות.
               </p>
-              <div className="flex flex-wrap gap-4 justify-center">
+              <div className="flex flex-wrap gap-3 sm:gap-4 justify-center">
                 <Button
                   variant="gold"
-                  size="xl"
+                  size="lg"
                   asChild
-                  className="uppercase tracking-wide shadow-xl hover:shadow-2xl"
+                  className="uppercase tracking-wide shadow-xl hover:shadow-2xl text-sm"
                 >
                   <Link href="/products">
                     כל המוצרים
@@ -280,9 +281,9 @@ export default function Home() {
                 </Button>
                 <Button
                   variant="destructive"
-                  size="xl"
+                  size="lg"
                   asChild
-                  className="uppercase tracking-wide shadow-xl hover:shadow-2xl"
+                  className="uppercase tracking-wide shadow-xl hover:shadow-2xl text-sm"
                 >
                   <Link href="/sale">
                     מבצעים
@@ -290,9 +291,9 @@ export default function Home() {
                 </Button>
                 <Button
                   variant="outline"
-                  size="xl"
+                  size="lg"
                   asChild
-                  className="uppercase tracking-wide shadow-xl hover:shadow-2xl border-2 border-white/30 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm"
+                  className="uppercase tracking-wide shadow-xl hover:shadow-2xl border-2 border-white/30 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm text-sm"
                 >
                   <Link href="/collections/new">
                     חדש

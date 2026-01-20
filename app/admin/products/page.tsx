@@ -95,15 +95,15 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 lg:space-y-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-4xl md:text-5xl font-black mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">المنتجات</h1>
-          <p className="text-muted-foreground text-lg">إدارة جميع المنتجات ({totalProducts} منتج)</p>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">المنتجات</h1>
+          <p className="text-muted-foreground text-base lg:text-lg">إدارة جميع المنتجات ({totalProducts} منتج)</p>
         </div>
-        <Button variant="gold" size="xl" asChild className="uppercase tracking-wide shadow-xl hover:shadow-2xl">
+        <Button variant="gold" size="lg" asChild className="uppercase tracking-wide shadow-xl hover:shadow-2xl w-full sm:w-auto">
           <Link href="/admin/products/add">
-            <Plus size={20} className="ml-2" />
+            <Plus size={18} className="ml-2" />
             إضافة منتج
           </Link>
         </Button>
@@ -115,7 +115,7 @@ export default function ProductsPage() {
           <CardTitle className="text-2xl font-black">حذف جماعي</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-2 lg:gap-4">
             <Button
               variant="destructive"
               size="lg"
@@ -160,7 +160,7 @@ export default function ProductsPage() {
             <CardTitle className="text-2xl font-black">{month} ({products.length} منتج)</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
               {products.map(p => (
                 <Card key={p.id} className="border-border hover:shadow-lg transition-all duration-200">
                   <CardContent className="p-4">

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { Loader2, AlertCircle, Lock, Mail } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -52,8 +53,9 @@ export default function AdminLoginPage() {
         document.cookie = `admin_token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
         document.cookie = `admin_email=${data.admin.email}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
         
-        // إعادة التوجيه إلى لوحة التحكم
-        router.push("/admin");
+        // إعادة التوجيه إلى لوحة التحكم أو الصفحة المطلوبة
+        const returnTo = searchParams.get("returnTo") || "/admin";
+        router.push(returnTo);
       }
     } catch (err: any) {
       setError(err.message || "حدث خطأ أثناء تسجيل الدخول");

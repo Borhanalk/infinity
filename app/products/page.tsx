@@ -127,37 +127,37 @@ export default function ProductsListPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground pt-24">
-      <section className="py-16 px-6">
+    <div className="min-h-screen bg-background text-foreground pt-20 sm:pt-24">
+      <section className="py-8 sm:py-12 lg:py-16 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-border pb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 sm:mb-12 border-b border-border pb-6 sm:pb-8">
             <div>
-              <span className="text-muted-foreground text-sm tracking-wider uppercase block mb-3 font-bold">المنتجات</span>
-              <h1 className="text-5xl md:text-6xl font-black">جميع المنتجات</h1>
+              <span className="text-muted-foreground text-xs sm:text-sm tracking-wider uppercase block mb-2 sm:mb-3 font-bold">المنتجات</span>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black">جميع المنتجات</h1>
             </div>
           </div>
 
           {/* Filters */}
-          <Card className="mb-12 border-border">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row gap-4">
+          <Card className="mb-8 sm:mb-12 border-border">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                  <Search className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
                   <Input
                     placeholder="بحث..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pr-12 h-14 text-base rounded-xl"
+                    className="pr-10 sm:pr-12 h-12 sm:h-14 text-sm sm:text-base rounded-xl"
                   />
                 </div>
-                <div className="relative">
-                  <Filter className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                <div className="relative w-full sm:w-auto">
+                  <Filter className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
                   <select
                     value={filterCategory === "" ? "" : String(filterCategory)}
                     onChange={(e) =>
                       setFilterCategory(e.target.value ? Number(e.target.value) : "")
                     }
-                    className="h-14 px-12 pr-12 bg-background border border-input rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-ring min-w-[200px]"
+                    className="h-12 sm:h-14 px-10 sm:px-12 pr-10 sm:pr-12 bg-background border border-input rounded-xl text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-ring w-full sm:min-w-[200px]"
                   >
                     <option value="">جميع الفئات</option>
                     {categories.map((c) => (
@@ -184,7 +184,7 @@ export default function ProductsListPage() {
 
           {/* Products Grid */}
           {!loading && filtered.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {filtered.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

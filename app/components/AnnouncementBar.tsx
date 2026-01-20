@@ -47,22 +47,24 @@ export function AnnouncementBar() {
     : "";
 
   return (
-    <div className="bg-gradient-to-r from-foreground via-foreground/95 to-foreground text-background text-sm py-4 px-6 flex justify-between items-center border-b border-border/50 shadow-sm">
-      <div className="flex items-center gap-4">
-        <span className="text-[#D4AF37] text-xl animate-pulse">🎯</span>
-        <span className="font-bold tracking-wide">
+    <div className="bg-gradient-to-r from-foreground via-foreground/95 to-foreground text-background text-xs sm:text-sm py-3 sm:py-4 px-4 sm:px-6 flex justify-between items-center border-b border-border/50 shadow-sm">
+      <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+        <span className="text-[#D4AF37] text-lg sm:text-xl animate-pulse flex-shrink-0">🎯</span>
+        <span className="font-bold tracking-wide truncate">
           {campaign.title} {discountText && `- ${discountText}`}
-          {campaign.description && ` - ${campaign.description}`}
+          {campaign.description && (
+            <span className="hidden sm:inline"> - {campaign.description}</span>
+          )}
         </span>
       </div>
       <Button
         variant="ghost"
         size="icon"
         onClick={() => setShowBanner(false)}
-        className="rounded-full h-9 w-9 hover:bg-background/20 transition-colors"
+        className="rounded-full h-8 w-8 sm:h-9 sm:w-9 hover:bg-background/20 transition-colors flex-shrink-0"
         aria-label="סגור"
       >
-        <X size={18} className="opacity-80 hover:opacity-100" />
+        <X size={16} className="sm:w-[18px] sm:h-[18px] opacity-80 hover:opacity-100" />
       </Button>
     </div>
   );

@@ -42,15 +42,15 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border shadow-sm">
-      <nav className="container mx-auto px-6 h-24 flex items-center justify-between">
+      <nav className="container mx-auto px-4 sm:px-6 h-20 sm:h-24 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="text-3xl font-black tracking-tight flex items-center gap-2 group">
-          <span className="w-3 h-3 bg-gradient-to-br from-[#D4AF37] to-[#C9A961] rounded-full shadow-lg group-hover:scale-110 transition-transform"></span>
+        <Link href="/" className="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-2 group">
+          <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-gradient-to-br from-[#D4AF37] to-[#C9A961] rounded-full shadow-lg group-hover:scale-110 transition-transform"></span>
           <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">הגבר האלגנטי</span>
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-8 text-base font-semibold">
+        <div className="hidden lg:flex items-center gap-6 xl:gap-8 text-sm xl:text-base font-semibold">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -72,7 +72,7 @@ export function Navbar() {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Button variant="ghost" size="icon" className="rounded-full">
             <Search size={20} />
           </Button>
