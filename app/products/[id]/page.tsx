@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingBag, Loader2, AlertCircle, CheckCircle2, ArrowRight, Package, Truck, Shield } from "lucide-react";
+import { ShoppingBag, Loader2, AlertCircle, CheckCircle2, ArrowRight, Package, Truck, Shield, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -49,6 +49,7 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [addedToCart, setAddedToCart] = useState(false);
   const [quantity, setQuantity] = useState(1);
 
@@ -90,7 +91,10 @@ export default function ProductDetailPage() {
         setProduct(data);
         if (data.colors?.length) setSelectedColor(data.colors[0].name);
         if (data.sizes?.length) setSelectedSize(data.sizes[0].size);
-        if (data.images?.[0]?.url) setSelectedImage(data.images[0].url);
+        if (data.images?.[0]?.url) {
+          setSelectedImage(data.images[0].url);
+          setSelectedImageIndex(0);
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -105,6 +109,24 @@ export default function ProductDetailPage() {
   }, [id]);
 
   const mainImage = useMemo(() => product?.images?.[0]?.url, [product]);
+  
+  const currentImage = useMemo(() => {
+    if (!product?.images || product.images.length === 0) return null;
+    return product.images[selectedImageIndex]?.url || product.images[0]?.url;
+  }, [product, selectedImageIndex]);
+
+  const handleNextImage = () => {
+    if (!product?.images) return;
+    setSelectedImageIndex((prev) => (prev + 1) % product.images.length);
+    setSelectedImage(product.images[(selectedImageIndex + 1) % product.images.length]?.url || null);
+  };
+
+  const handlePrevImage = () => {
+    if (!product?.images) return;
+    const newIndex = (selectedImageIndex - 1 + product.images.length) % product.images.length;
+    setSelectedImageIndex(newIndex);
+    setSelectedImage(product.images[newIndex]?.url || null);
+  };
 
   if (loading) {
     return (
@@ -137,7 +159,7 @@ export default function ProductDetailPage() {
 
   if (!product) return null;
 
-  const displayImage = selectedImage || mainImage;
+  const displayImage = currentImage || selectedImage || mainImage;
   const displayPrice = product.isOnSale && product.originalPrice && product.originalPrice > product.price
     ? product.originalPrice
     : null;
@@ -192,42 +214,69 @@ export default function ProductDetailPage() {
           )}
         </div>
 
-        {/* Mobile Layout: Horizontal (Image Right, Details Left) */}
-        <div className="flex flex-row-reverse items-start gap-3 sm:gap-4 lg:hidden mb-6">
-          {/* Small Image on Right */}
+        {/* Mobile Layout: Large Image on Top with Navigation */}
+        <div className="lg:hidden mb-6 space-y-4">
+          {/* Large Image on Top with Navigation */}
           {displayImage ? (
-            <div className="flex-shrink-0">
-              <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-xl overflow-hidden border-2 border-border/50 bg-gradient-to-br from-muted/50 to-muted">
-                <img
-                  src={displayImage}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/placeholder-image.jpg";
-                  }}
-                />
-                <div className="absolute top-1 right-1 flex flex-col gap-1 z-10">
-                  {product.isNew && (
-                    <Badge variant="new" className="text-[10px] px-1.5 py-0.5 uppercase tracking-wider font-black shadow-lg">
-                      חדש
-                    </Badge>
-                  )}
-                  {product.isOnSale && discountPercent > 0 && (
-                    <Badge variant="sale" className="text-[10px] px-1.5 py-0.5 uppercase tracking-wider font-black shadow-lg">
-                      {discountPercent}%
-                    </Badge>
-                  )}
-                </div>
+            <div className="relative w-full aspect-square rounded-xl overflow-hidden border-2 border-border/50 bg-gradient-to-br from-muted/50 to-muted">
+              <img
+                src={displayImage}
+                alt={product.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/placeholder-image.jpg";
+                }}
+              />
+              
+              {/* Navigation Buttons */}
+              {product.images && product.images.length > 1 && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handlePrevImage}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-background/80 backdrop-blur-sm hover:bg-background h-10 w-10 rounded-full shadow-lg"
+                  >
+                    <ChevronRight size={20} />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleNextImage}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-background/80 backdrop-blur-sm hover:bg-background h-10 w-10 rounded-full shadow-lg"
+                  >
+                    <ChevronLeft size={20} />
+                  </Button>
+                  
+                  {/* Image Counter */}
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold">
+                    {selectedImageIndex + 1} / {product.images.length}
+                  </div>
+                </>
+              )}
+              
+              {/* Badges */}
+              <div className="absolute top-2 right-2 flex flex-col gap-1.5 z-10">
+                {product.isNew && (
+                  <Badge variant="new" className="text-[10px] px-2 py-0.5 uppercase tracking-wider font-black shadow-lg">
+                    חדש
+                  </Badge>
+                )}
+                {product.isOnSale && discountPercent > 0 && (
+                  <Badge variant="sale" className="text-[10px] px-2 py-0.5 uppercase tracking-wider font-black shadow-lg">
+                    {discountPercent}%
+                  </Badge>
+                )}
               </div>
             </div>
           ) : (
-            <div className="flex-shrink-0 w-28 h-28 sm:w-32 sm:h-32 rounded-xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center border-2 border-border/50">
-              <Package className="w-8 h-8 text-muted-foreground/30" />
+            <div className="relative w-full aspect-square rounded-xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center border-2 border-border/50">
+              <Package className="w-16 h-16 text-muted-foreground/30" />
             </div>
           )}
 
-          {/* Product Details on Left */}
-          <div className="flex-1 min-w-0 space-y-3">
+          {/* Product Details Below Image */}
+          <div className="space-y-3">
             {/* Company & Title */}
             {product.company && (
               <div className="flex items-center gap-2 p-2 bg-secondary/30 rounded-lg border border-border/50">
@@ -242,17 +291,17 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            <h1 className="text-lg sm:text-xl font-black leading-tight line-clamp-2">
-              {product.name || "منتج"}
+            <h1 className="text-xl sm:text-2xl font-black leading-tight">
+              {product.name || "מוצר"}
             </h1>
 
             {/* Price Section */}
             <div className="flex items-center gap-2 p-3 bg-gradient-to-br from-secondary/20 to-secondary/10 rounded-lg border border-border/50">
               {product.isOnSale && product.originalPrice && product.originalPrice > product.price && (
-                <span className="text-sm text-destructive line-through font-medium">{product.originalPrice.toFixed(2)} ₪</span>
+                <span className="text-base text-destructive line-through font-medium">{product.originalPrice.toFixed(2)} ₪</span>
               )}
               <span className={cn(
-                "text-xl sm:text-2xl font-black",
+                "text-2xl sm:text-3xl font-black",
                 product.isOnSale ? "text-destructive" : "text-foreground"
               )}>
                 {product.price.toFixed(2)} ₪
@@ -305,11 +354,14 @@ export default function ProductDetailPage() {
               <div className="grid grid-cols-4 xl:grid-cols-5 gap-3">
                 {product.images.map((img, index) => (
                   <button
-                    key={img.url}
-                    onClick={() => setSelectedImage(img.url)}
+                    key={img.url || index}
+                    onClick={() => {
+                      setSelectedImage(img.url);
+                      setSelectedImageIndex(index);
+                    }}
                     className={cn(
                       "h-20 xl:h-24 w-full rounded-xl overflow-hidden border-2 transition-all duration-300 relative group",
-                      selectedImage === img.url || (!selectedImage && index === 0)
+                      selectedImageIndex === index
                         ? "border-[#D4AF37] scale-105 shadow-lg ring-2 ring-[#D4AF37]/50"
                         : "border-border hover:border-[#D4AF37]/50 hover:scale-105"
                     )}
@@ -319,7 +371,7 @@ export default function ProductDetailPage() {
                       alt={`${product.name} - Image ${index + 1}`}
                       className="h-full w-full object-cover"
                     />
-                    {selectedImage === img.url || (!selectedImage && index === 0) && (
+                    {selectedImageIndex === index && (
                       <div className="absolute inset-0 bg-[#D4AF37]/20" />
                     )}
                   </button>

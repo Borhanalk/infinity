@@ -80,8 +80,8 @@ export function ProductCard({ product }: ProductCardProps) {
           </Badge>
         )}
       </div>
-      {/* Image wrapper: صغيرة على الهاتف، متوسطة على الديسكتوب */}
-      <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden rounded-t-xl sm:rounded-t-2xl">
+      {/* Image wrapper: مربع على جميع الشاشات */}
+      <div className="relative w-full aspect-square bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden rounded-t-xl sm:rounded-t-2xl">
         <img
           src={imageUrl}
           alt={product.name}
