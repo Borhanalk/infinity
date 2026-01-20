@@ -47,9 +47,9 @@ export function AnnouncementBar() {
     : "";
 
   return (
-    <div className="bg-gradient-to-r from-foreground via-foreground/95 to-foreground text-background text-xs sm:text-sm py-3 sm:py-4 px-4 sm:px-6 flex justify-between items-center border-b border-border/50 shadow-sm">
-      <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
-        <span className="text-[#D4AF37] text-lg sm:text-xl animate-pulse flex-shrink-0">🎯</span>
+    <div className="bg-gradient-to-r from-foreground via-foreground/95 to-foreground text-background text-[10px] sm:text-xs lg:text-sm py-2 sm:py-3 lg:py-4 px-3 sm:px-4 lg:px-6 flex justify-between items-center border-b border-border/50 shadow-sm">
+      <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-4 flex-1 min-w-0">
+        <span className="text-[#D4AF37] text-sm sm:text-lg lg:text-xl animate-pulse flex-shrink-0">🎯</span>
         <span className="font-bold tracking-wide truncate">
           {campaign.title} {discountText && `- ${discountText}`}
           {campaign.description && (
@@ -61,10 +61,10 @@ export function AnnouncementBar() {
         variant="ghost"
         size="icon"
         onClick={() => setShowBanner(false)}
-        className="rounded-full h-8 w-8 sm:h-9 sm:w-9 hover:bg-background/20 transition-colors flex-shrink-0"
+        className="rounded-full h-7 w-7 sm:h-8 sm:w-8 lg:h-9 lg:w-9 hover:bg-background/20 transition-colors flex-shrink-0"
         aria-label="סגור"
       >
-        <X size={16} className="sm:w-[18px] sm:h-[18px] opacity-80 hover:opacity-100" />
+        <X size={14} className="sm:w-4 sm:h-4 lg:w-[18px] lg:h-[18px] opacity-80 hover:opacity-100" />
       </Button>
     </div>
   );

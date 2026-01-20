@@ -44,14 +44,14 @@ export function CategoryGrid() {
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-7xl mx-auto">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 lg:gap-6 xl:gap-8 max-w-7xl mx-auto">
       {categories.map((category) => {
         return (
           <Card
             key={category.id}
             asChild
             className={cn(
-              "relative h-48 sm:h-56 lg:h-64 overflow-hidden group hover:shadow-2xl transition-all duration-500 border-border/50 hover:border-border rounded-xl sm:rounded-2xl"
+              "relative h-32 sm:h-48 lg:h-56 xl:h-64 overflow-hidden group hover:shadow-2xl transition-all duration-500 border-border/50 hover:border-border rounded-lg sm:rounded-xl lg:rounded-2xl"
             )}
           >
             <Link href={`/categories/${category.id}`}>
@@ -63,12 +63,12 @@ export function CategoryGrid() {
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/60 to-background/40 group-hover:from-background/70 group-hover:via-background/50 group-hover:to-background/30 transition-all duration-500"></div>
-              <div className="absolute inset-0 flex items-center justify-center font-black text-3xl sm:text-4xl lg:text-6xl opacity-5 group-hover:opacity-10 group-hover:scale-110 transition-all duration-500">
+              <div className="absolute inset-0 flex items-center justify-center font-black text-xl sm:text-3xl lg:text-4xl xl:text-6xl opacity-5 group-hover:opacity-10 group-hover:scale-110 transition-all duration-500">
                 {category.name.toUpperCase()}
               </div>
               <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-                <h3 className="text-xl sm:text-2xl lg:text-3xl font-black mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300">{category.name}</h3>
-                <span className="text-xs sm:text-sm font-bold text-muted-foreground group-hover:text-foreground transition-colors">קנה עכשיו</span>
+                <h3 className="text-sm sm:text-xl lg:text-2xl xl:text-3xl font-black mb-1 sm:mb-2 lg:mb-3 group-hover:scale-110 transition-transform duration-300">{category.name}</h3>
+                <span className="text-[10px] sm:text-xs lg:text-sm font-bold text-muted-foreground group-hover:text-foreground transition-colors">קנה עכשיו</span>
               </div>
             </Link>
           </Card>
@@ -78,17 +78,17 @@ export function CategoryGrid() {
       <Card
         asChild
         className={cn(
-          "relative h-48 sm:h-56 lg:h-64 overflow-hidden group hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-destructive via-destructive/90 to-destructive/80 text-destructive-foreground border-2 border-destructive/50 hover:border-destructive rounded-xl sm:rounded-2xl"
+          "relative h-32 sm:h-48 lg:h-56 xl:h-64 overflow-hidden group hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-destructive via-destructive/90 to-destructive/80 text-destructive-foreground border-2 border-destructive/50 hover:border-destructive rounded-lg sm:rounded-xl lg:rounded-2xl"
         )}
       >
         <Link href="/sale">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_70%)]"></div>
-          <div className="absolute inset-0 flex items-center justify-center font-black text-3xl sm:text-4xl lg:text-6xl opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-500">
+          <div className="absolute inset-0 flex items-center justify-center font-black text-xl sm:text-3xl lg:text-4xl xl:text-6xl opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-500">
             SALE
           </div>
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300">מבצעים</h3>
-            <span className="text-xs sm:text-sm font-bold opacity-90 group-hover:opacity-100 transition-opacity">קנה עכשיו</span>
+            <h3 className="text-sm sm:text-xl lg:text-2xl xl:text-3xl font-black mb-1 sm:mb-2 lg:mb-3 group-hover:scale-110 transition-transform duration-300">מבצעים</h3>
+            <span className="text-[10px] sm:text-xs lg:text-sm font-bold opacity-90 group-hover:opacity-100 transition-opacity">קנה עכשיו</span>
           </div>
         </Link>
       </Card>
