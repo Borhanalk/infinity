@@ -10,10 +10,10 @@ type Product = {
   originalPrice?: number | null;
   description: string;
   images: Array<{ id: string; url: string }>;
-  isOnSale?: boolean;
+  isOnSale: boolean;
   discountPercent?: number | null;
-  isNew?: boolean;
-  categoryId?: number;
+  isNew: boolean;
+  categoryId: number;
   category?: {
     id: number;
     name: string;
@@ -23,12 +23,12 @@ type Product = {
     name: string;
     logoUrl?: string | null;
   } | null;
-  colors?: Array<{
+  colors: Array<{
     id: string;
     name: string;
     hex: string;
   }>;
-  sizes?: Array<{
+  sizes: Array<{
     id: string;
     size: string;
     quantity: number;
@@ -47,18 +47,39 @@ export default function SalesPage() {
         if (res.ok) {
           const data = await res.json();
           // التحقق من وجود products في الـ response (في حالة وجود خطأ)
+          let productsData: any[] = [];
           if (data.products) {
-            setProducts(Array.isArray(data.products) ? data.products.filter((p: Product) => p.isOnSale) : []);
+            productsData = Array.isArray(data.products) ? data.products.filter((p: any) => p.isOnSale) : [];
           } else if (Array.isArray(data)) {
-            setProducts(data.filter((p: Product) => p.isOnSale));
-          } else {
-            setProducts([]);
+            productsData = data.filter((p: any) => p.isOnSale);
           }
+          
+          // التأكد من أن جميع الحقول المطلوبة موجودة
+          setProducts(productsData.map((p: any) => ({
+            ...p,
+            isOnSale: p.isOnSale ?? false,
+            isNew: p.isNew ?? false,
+            categoryId: p.categoryId ?? 0,
+            images: p.images || [],
+            description: p.description || "",
+            colors: p.colors || [],
+            sizes: p.sizes || [],
+          })));
         } else {
           const errorData = await res.json().catch(() => ({}));
           // إذا كان هناك products في الـ response حتى مع وجود خطأ، استخدمها
           if (errorData.products) {
-            setProducts(Array.isArray(errorData.products) ? errorData.products.filter((p: Product) => p.isOnSale) : []);
+            const productsData = Array.isArray(errorData.products) ? errorData.products.filter((p: any) => p.isOnSale) : [];
+            setProducts(productsData.map((p: any) => ({
+              ...p,
+              isOnSale: p.isOnSale ?? false,
+              isNew: p.isNew ?? false,
+              categoryId: p.categoryId ?? 0,
+              images: p.images || [],
+              description: p.description || "",
+              colors: p.colors || [],
+              sizes: p.sizes || [],
+            })));
           } else {
             setProducts([]);
           }
