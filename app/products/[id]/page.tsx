@@ -175,16 +175,16 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/20 text-foreground pt-24" dir="rtl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/20 text-foreground pt-20 sm:pt-24" dir="rtl">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8 xl:py-16">
         {/* Breadcrumb */}
-        <div className="mb-8 flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="mb-4 sm:mb-6 lg:mb-8 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
           <Link href="/" className="hover:text-foreground transition-colors">الرئيسية</Link>
-          <ArrowRight size={16} className="rotate-180" />
+          <ArrowRight size={14} className="rotate-180 sm:w-4 sm:h-4" />
           <Link href="/products" className="hover:text-foreground transition-colors">المنتجات</Link>
           {product.category && (
             <>
-              <ArrowRight size={16} className="rotate-180" />
+              <ArrowRight size={14} className="rotate-180 sm:w-4 sm:h-4" />
               <Link href={`/categories/${product.category.id}`} className="hover:text-foreground transition-colors">
                 {product.category.name}
               </Link>
@@ -192,13 +192,83 @@ export default function ProductDetailPage() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 mb-16">
+        {/* Mobile Layout: Horizontal (Image Right, Details Left) */}
+        <div className="flex flex-row-reverse items-start gap-3 sm:gap-4 lg:hidden mb-6">
+          {/* Small Image on Right */}
+          {displayImage ? (
+            <div className="flex-shrink-0">
+              <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-xl overflow-hidden border-2 border-border/50 bg-gradient-to-br from-muted/50 to-muted">
+                <img
+                  src={displayImage}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/placeholder-image.jpg";
+                  }}
+                />
+                <div className="absolute top-1 right-1 flex flex-col gap-1 z-10">
+                  {product.isNew && (
+                    <Badge variant="new" className="text-[10px] px-1.5 py-0.5 uppercase tracking-wider font-black shadow-lg">
+                      جديد
+                    </Badge>
+                  )}
+                  {product.isOnSale && discountPercent > 0 && (
+                    <Badge variant="sale" className="text-[10px] px-1.5 py-0.5 uppercase tracking-wider font-black shadow-lg">
+                      {discountPercent}%
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-shrink-0 w-28 h-28 sm:w-32 sm:h-32 rounded-xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center border-2 border-border/50">
+              <Package className="w-8 h-8 text-muted-foreground/30" />
+            </div>
+          )}
+
+          {/* Product Details on Left */}
+          <div className="flex-1 min-w-0 space-y-3">
+            {/* Company & Title */}
+            {product.company && (
+              <div className="flex items-center gap-2 p-2 bg-secondary/30 rounded-lg border border-border/50">
+                {product.company.logoUrl && (
+                  <img
+                    src={product.company.logoUrl}
+                    alt={product.company.name}
+                    className="w-6 h-6 object-contain rounded bg-background p-1"
+                  />
+                )}
+                <p className="text-xs font-black text-foreground line-clamp-1">{product.company.name}</p>
+              </div>
+            )}
+
+            <h1 className="text-lg sm:text-xl font-black leading-tight line-clamp-2">
+              {product.name || "منتج"}
+            </h1>
+
+            {/* Price Section */}
+            <div className="flex items-center gap-2 p-3 bg-gradient-to-br from-secondary/20 to-secondary/10 rounded-lg border border-border/50">
+              {product.isOnSale && product.originalPrice && product.originalPrice > product.price && (
+                <span className="text-sm text-destructive line-through font-medium">{product.originalPrice.toFixed(2)} ₪</span>
+              )}
+              <span className={cn(
+                "text-xl sm:text-2xl font-black",
+                product.isOnSale ? "text-destructive" : "text-foreground"
+              )}>
+                {product.price.toFixed(2)} ₪
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Layout: Grid */}
+        <div className="hidden lg:grid lg:grid-cols-2 gap-8 xl:gap-16 mb-12 xl:mb-16">
           {/* IMAGES SECTION */}
           <div className="sticky top-24">
-            {/* Main Image: أصغر على الديسكتوب، واضحة على الجوال بدون أن تكون ضخمة */}
+            {/* Main Image */}
             {displayImage ? (
               <Card className="mb-6 overflow-hidden border-2 border-border/50 shadow-2xl rounded-3xl group">
-                <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] lg:aspect-[3/4] bg-gradient-to-br from-muted/50 to-muted overflow-hidden">
+                <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-muted/50 to-muted overflow-hidden">
                   <img
                     src={displayImage}
                     alt={product.name}
@@ -232,13 +302,13 @@ export default function ProductDetailPage() {
 
             {/* Thumbnail Images */}
             {product.images && product.images.length > 1 && (
-              <div className="grid grid-cols-4 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-4 xl:grid-cols-5 gap-3">
                 {product.images.map((img, index) => (
                   <button
                     key={img.url}
                     onClick={() => setSelectedImage(img.url)}
                     className={cn(
-                      "h-20 md:h-24 w-full rounded-xl overflow-hidden border-2 transition-all duration-300 relative group",
+                      "h-20 xl:h-24 w-full rounded-xl overflow-hidden border-2 transition-all duration-300 relative group",
                       selectedImage === img.url || (!selectedImage && index === 0)
                         ? "border-[#D4AF37] scale-105 shadow-lg ring-2 ring-[#D4AF37]/50"
                         : "border-border hover:border-[#D4AF37]/50 hover:scale-105"
@@ -259,8 +329,8 @@ export default function ProductDetailPage() {
           </div>
 
           {/* PRODUCT INFO */}
-          <div className="space-y-8">
-            {/* Company & Title */}
+          <div className="space-y-6 xl:space-y-8">
+            {/* Company & Title - Desktop Only */}
             <div>
               {product.company && (
                 <div className="flex items-center gap-3 mb-6 p-4 bg-secondary/30 rounded-2xl border border-border/50">
@@ -278,7 +348,7 @@ export default function ProductDetailPage() {
                 </div>
               )}
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              <h1 className="text-4xl xl:text-5xl 2xl:text-6xl font-black mb-6 leading-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                 {product.name || "منتج"}
               </h1>
 
@@ -292,7 +362,7 @@ export default function ProductDetailPage() {
                 )}
                 <div className="flex items-baseline gap-2">
                   <span className={cn(
-                    "text-4xl md:text-5xl font-black",
+                    "text-4xl xl:text-5xl font-black",
                     product.isOnSale ? "text-destructive" : "text-foreground"
                   )}>
                     {product.price.toFixed(2)}
@@ -305,12 +375,12 @@ export default function ProductDetailPage() {
             <Separator className="bg-border/50" />
 
             {/* Description */}
-            <div className="p-6 bg-secondary/10 rounded-2xl border border-border/30">
-              <h2 className="text-2xl font-black mb-4 text-foreground flex items-center gap-2">
-                <Package className="w-6 h-6 text-[#D4AF37]" />
+            <div className="p-4 sm:p-5 lg:p-6 bg-secondary/10 rounded-xl lg:rounded-2xl border border-border/30">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-black mb-3 sm:mb-4 text-foreground flex items-center gap-2">
+                <Package className="w-5 h-5 sm:w-6 sm:h-6 text-[#D4AF37]" />
                 الوصف
               </h2>
-              <p className="text-muted-foreground leading-relaxed text-lg whitespace-pre-line">{product.description}</p>
+              <p className="text-muted-foreground leading-relaxed text-sm sm:text-base lg:text-lg whitespace-pre-line">{product.description}</p>
             </div>
 
             {/* Colors */}
@@ -487,6 +557,185 @@ export default function ProductDetailPage() {
                   <p className="text-sm font-black">خلال 14 يوم</p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Details Section (Below Image) */}
+        <div className="lg:hidden space-y-4">
+          {/* Description */}
+          <div className="p-3 bg-secondary/10 rounded-lg border border-border/30">
+            <h2 className="text-base font-black mb-2 text-foreground flex items-center gap-2">
+              <Package className="w-4 h-4 text-[#D4AF37]" />
+              الوصف
+            </h2>
+            <p className="text-muted-foreground leading-relaxed text-sm whitespace-pre-line line-clamp-3">{product.description}</p>
+          </div>
+
+          {/* Colors */}
+          {product.colors && product.colors.length > 0 && (
+            <div className="p-3 bg-secondary/10 rounded-lg border border-border/30">
+              <div className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-bold flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+                اختر اللون
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {product.colors.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => setSelectedColor(c.name)}
+                    className={cn(
+                      "relative w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 transition-all duration-300 transform hover:scale-110",
+                      selectedColor === c.name
+                        ? "border-[#D4AF37] scale-110 shadow-lg ring-2 ring-[#D4AF37]/30"
+                        : "border-border hover:border-[#D4AF37]/50"
+                    )}
+                    style={{ backgroundColor: c.hex }}
+                    aria-label={c.name}
+                    title={c.name}
+                  >
+                    {selectedColor === c.name && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-white drop-shadow-lg" />
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+              {selectedColor && (
+                <p className="mt-2 text-xs text-muted-foreground">اللون: <span className="font-black text-foreground">{selectedColor}</span></p>
+              )}
+            </div>
+          )}
+
+          {/* Sizes */}
+          {product.sizes && product.sizes.length > 0 && (
+            <div className="p-3 bg-secondary/10 rounded-lg border border-border/30">
+              <div className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-bold flex items-center gap-1.5">
+                <Package className="w-3.5 h-3.5" />
+                اختر المقاس
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {product.sizes.map((s) => (
+                  <Button
+                    key={s.id}
+                    variant={selectedSize === s.size ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => s.quantity > 0 && setSelectedSize(s.size)}
+                    disabled={s.quantity === 0}
+                    className={cn(
+                      "min-w-[60px] h-9 sm:h-10 text-xs sm:text-sm font-black transition-all duration-300",
+                      selectedSize === s.size
+                        ? "bg-[#D4AF37] hover:bg-[#C9A961] text-black border-2 border-[#D4AF37] shadow-lg scale-105"
+                        : "hover:border-[#D4AF37]/50",
+                      s.quantity === 0 && "opacity-40 cursor-not-allowed line-through"
+                    )}
+                  >
+                    {s.size}
+                    {s.quantity > 0 && s.quantity < 5 && (
+                      <span className="text-[10px] text-destructive mr-0.5">({s.quantity})</span>
+                    )}
+                  </Button>
+                ))}
+              </div>
+              {selectedSizeData && (
+                <p className={cn(
+                  "mt-2 text-xs font-bold",
+                  selectedSizeData.quantity > 0 ? "text-green-600" : "text-destructive"
+                )}>
+                  {selectedSizeData.quantity > 0
+                    ? `✓ متوفر (${selectedSizeData.quantity})`
+                    : "✗ غير متوفر"}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Quantity Selector */}
+          <div className="p-3 bg-secondary/10 rounded-lg border border-border/30">
+            <div className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-bold">الكمية</div>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                disabled={quantity <= 1}
+                className="w-10 h-10 text-lg font-black"
+              >
+                −
+              </Button>
+              <span className="text-xl font-black min-w-[50px] text-center">{quantity}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setQuantity(quantity + 1)}
+                disabled={isOutOfStock || (selectedSizeData && quantity >= selectedSizeData.quantity)}
+                className="w-10 h-10 text-lg font-black"
+              >
+                +
+              </Button>
+            </div>
+          </div>
+
+          <Separator className="bg-border/50" />
+
+          {/* Add to Cart Button */}
+          <div className="space-y-3">
+            <Button
+              variant="gold"
+              size="lg"
+              disabled={isOutOfStock}
+              className={cn(
+                "w-full h-11 sm:h-12 text-sm sm:text-base uppercase tracking-wide shadow-xl hover:shadow-2xl transition-all duration-300",
+                addedToCart && "bg-green-600 hover:bg-green-700",
+                isOutOfStock && "opacity-50 cursor-not-allowed"
+              )}
+              onClick={handleAddToCart}
+            >
+              {addedToCart ? (
+                <>
+                  <CheckCircle2 size={18} className="ml-2" />
+                  تمت الإضافة!
+                </>
+              ) : isOutOfStock ? (
+                <>
+                  <AlertCircle size={18} className="ml-2" />
+                  غير متوفر
+                </>
+              ) : (
+                <>
+                  <ShoppingBag size={18} className="ml-2" />
+                  أضف إلى السلة
+                </>
+              )}
+            </Button>
+
+            {addedToCart && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full h-10"
+                onClick={() => router.push("/cart")}
+              >
+                <ShoppingBag size={16} className="ml-2" />
+                عرض السلة
+              </Button>
+            )}
+          </div>
+
+          {/* Features */}
+          <div className="grid grid-cols-3 gap-2 pt-4">
+            <div className="flex flex-col items-center gap-1.5 p-2 bg-secondary/10 rounded-lg border border-border/30">
+              <Truck className="w-5 h-5 text-[#D4AF37]" />
+              <p className="text-[10px] text-muted-foreground font-bold text-center">شحن مجاني</p>
+            </div>
+            <div className="flex flex-col items-center gap-1.5 p-2 bg-secondary/10 rounded-lg border border-border/30">
+              <Shield className="w-5 h-5 text-[#D4AF37]" />
+              <p className="text-[10px] text-muted-foreground font-bold text-center">ضمان 30 يوم</p>
+            </div>
+            <div className="flex flex-col items-center gap-1.5 p-2 bg-secondary/10 rounded-lg border border-border/30">
+              <Package className="w-5 h-5 text-[#D4AF37]" />
+              <p className="text-[10px] text-muted-foreground font-bold text-center">إرجاع سهل</p>
             </div>
           </div>
         </div>
