@@ -91,10 +91,10 @@ export function ProductCard({ product }: ProductCardProps) {
           }}
         />
       </div>
-      <CardContent className="p-1.5 sm:p-2 md:p-3 lg:p-4 xl:p-6 text-right">
-        <div className="flex items-center justify-between mb-1 sm:mb-1.5 lg:mb-3">
+      <CardContent className="p-1 sm:p-1.5 md:p-2 lg:p-4 xl:p-6 text-right">
+        <div className="flex items-center justify-between mb-0.5 sm:mb-1 lg:mb-3">
           {categoryName && (
-            <p className="text-muted-foreground text-[9px] sm:text-[10px] md:text-xs font-bold uppercase tracking-wider line-clamp-1">{categoryName}</p>
+            <p className="text-muted-foreground text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs font-bold uppercase tracking-wider line-clamp-1">{categoryName}</p>
           )}
           {product.company && (
             <div className="flex items-center gap-0.5 sm:gap-1 lg:gap-2">
@@ -102,26 +102,26 @@ export function ProductCard({ product }: ProductCardProps) {
                 <img
                   src={product.company.logoUrl}
                   alt={product.company.name}
-                  className="w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6 object-contain"
+                  className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-6 lg:h-6 object-contain"
                 />
               ) : (
-                <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground font-bold line-clamp-1">{product.company.name}</span>
+                <span className="text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs text-muted-foreground font-bold line-clamp-1">{product.company.name}</span>
               )}
             </div>
           )}
         </div>
         <Link href={`/products/${product.id}`} className="block group/link">
-          <h3 className="font-black text-foreground text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg mb-1 sm:mb-1.5 lg:mb-3 xl:mb-4 group-hover/link:text-foreground/80 transition-colors leading-tight line-clamp-2 cursor-pointer">
+          <h3 className="font-black text-foreground text-[9px] sm:text-[10px] md:text-xs lg:text-sm xl:text-lg mb-0.5 sm:mb-1 lg:mb-3 xl:mb-4 group-hover/link:text-foreground/80 transition-colors leading-tight line-clamp-2 cursor-pointer">
             {product.name || "מוצר"}
           </h3>
         </Link>
-        <div className="flex items-center justify-start gap-1 sm:gap-2 lg:gap-3 xl:gap-4 mb-1.5 sm:mb-2 lg:mb-3 xl:mb-4">
+        <div className="flex items-center justify-start gap-0.5 sm:gap-1 md:gap-2 lg:gap-3 xl:gap-4 mb-1 sm:mb-1.5 lg:mb-3 xl:mb-4">
           {product.isOnSale && displayPrice && displayPrice > product.price && (
-            <span className="text-destructive text-[9px] sm:text-[10px] md:text-xs lg:text-sm xl:text-base line-through font-medium">{displayPrice.toFixed(2)} ₪</span>
+            <span className="text-destructive text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs xl:text-base line-through font-medium">{displayPrice.toFixed(2)} ₪</span>
           )}
           <span
             className={cn(
-              "text-[11px] sm:text-sm md:text-base lg:text-xl xl:text-2xl font-black",
+              "text-[10px] sm:text-xs md:text-sm lg:text-lg xl:text-2xl font-black",
               product.isOnSale ? "text-destructive" : "text-foreground"
             )}
           >
@@ -130,15 +130,16 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Details Button */}
-        <div className="mt-1.5 sm:mt-2 lg:mt-3 xl:mt-4">
+        <div className="mt-1 sm:mt-1.5 lg:mt-3 xl:mt-4">
           <Button
             variant="outline"
             size="sm"
             onClick={handleViewDetails}
-            className="w-full font-semibold text-[10px] sm:text-xs md:text-sm h-7 sm:h-8 lg:h-9 xl:h-10"
+            className="w-full font-semibold text-[9px] sm:text-[10px] md:text-xs lg:text-sm h-6 sm:h-7 md:h-8 lg:h-9 xl:h-10 px-1 sm:px-2"
           >
-            <Eye size={12} className="ml-1 sm:ml-1.5 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4" />
-            פרטים
+            <Eye size={10} className="ml-0.5 sm:ml-1 sm:w-3 sm:h-3 lg:w-4 lg:h-4" />
+            <span className="hidden sm:inline">פרטים</span>
+            <span className="sm:hidden">פרט</span>
           </Button>
         </div>
       </CardContent>
